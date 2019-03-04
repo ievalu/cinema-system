@@ -21,7 +21,6 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.1
 libraryDependencies += "com.dimafeng" %% "testcontainers-scala" % "0.22.0" % "test"
 libraryDependencies += "org.testcontainers" % "postgresql" % "1.10.1"
 
-libraryDependencies += jdbc % Test
 libraryDependencies += specs2 % Test
 
 scalacOptions ++= Seq(

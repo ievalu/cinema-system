@@ -1,6 +1,7 @@
 package modules.utility.database
 
 import com.github.tminglei.slickpg._
+import slick.basic.Capability
 
 trait ExtendedPostgresProfile extends ExPostgresProfile
   with PgArraySupport
@@ -13,6 +14,9 @@ trait ExtendedPostgresProfile extends ExPostgresProfile
   with PgLTreeSupport {
 
   def pgjson = "jsonb"
+
+  override protected def computeCapabilities: Set[Capability] =
+    super.computeCapabilities + slick.jdbc.JdbcCapabilities.insertOrUpdate
 
   override val api = new API with ArrayImplicits
     with DateTimeImplicits
