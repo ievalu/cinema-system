@@ -15,6 +15,8 @@ trait ExtendedPostgresProfile extends ExPostgresProfile
 
   def pgjson = "jsonb"
 
+  // disable this if issue https://github.com/slick/slick/pull/1983 is still unfixed
+  // because insertOrUpdate queries for tables with a primary key composed of all columns will fail
   override protected def computeCapabilities: Set[Capability] =
     super.computeCapabilities + slick.jdbc.JdbcCapabilities.insertOrUpdate
 
