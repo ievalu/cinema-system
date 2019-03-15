@@ -2,5 +2,15 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Movies
+GET     /                           modules.movie.MovieController.index
+GET     /movies                     modules.movie.MovieController.list
+
+# Directors
+
+# Actors
+
+# Genres
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
