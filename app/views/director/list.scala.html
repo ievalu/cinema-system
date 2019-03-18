@@ -1,0 +1,37 @@
+@import modules.director.Director
+@(directors: Seq[Director])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main("Directors") {
+
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Birth date</th>
+                <th>Nationality</th>
+                <th>Height</th>
+                <th>Gender</th>
+            </tr>
+        </thead>
+        <tbody>
+            @Option(directors).filter(_.nonEmpty).map { directors =>
+                @directors.map { director =>
+                    <tr>
+                        <td>
+                            @director.firstName
+                            @director.lastName
+                        </td>
+                        <td>@director.birthDate</td>
+                        <td>@director.nationality.actualName</td>
+                        <td>@director.height</td>
+                        <td>@director.gender.actualName</td>
+                    </tr>
+                }
+                }.getOrElse {
+                    <tr>
+                        <td colspan="2">No directors found</td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+}

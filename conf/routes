@@ -9,6 +9,7 @@ GET     /movies/new                 modules.movie.MovieController.createMovie
 POST    /movies                     modules.movie.MovieController.saveNewMovie
 
 # Directors
+GET     /directors                  modules.director.DirectorController.list
 
 # Actors
 

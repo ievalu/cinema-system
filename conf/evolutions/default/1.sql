@@ -14,7 +14,7 @@ create table "director" (
 	"first-name" varchar not null,
 	"last-name" varchar not null,
 	"birth-date" date not null,
-	"nationality" int not null,
+	"nationality" varchar not null,
 	"height" int not null,
 	"gender" varchar(1) not null
 );
@@ -24,7 +24,7 @@ create table "actor" (
 	"first-name" varchar not null,
 	"last-name" varchar not null,
 	"birth-date" date not null,
-	"nationality" int not null,
+	"nationality" varchar not null,
 	"height" int not null,
 	"gender" varchar(1) not null
 );
