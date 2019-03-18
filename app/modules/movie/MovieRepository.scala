@@ -1,8 +1,6 @@
 package modules.movie
 
 import javax.inject.{Inject, Singleton}
-import modules.movie.Country.CountryVal
-import modules.movie.Language.LanguageVal
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
