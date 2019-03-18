@@ -1,0 +1,33 @@
+@import modules.movie.Movie
+@(movies: Seq[Movie])(implicit request: MessagesRequestHeader)
+
+@main("Movies") {
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Release date</th>
+                <th>Country</th>
+                <th>Language</th>
+            </tr>
+        </thead>
+        <tbody>
+            @Option(movies).filter(_.nonEmpty).map { movies =>
+                @movies.map { movie =>
+                    <tr>
+                        <td>@movie.title</td>
+                        <td>@movie.description</td>
+                        <td>@movie.releaseDate</td>
+                        <td>@movie.country.actualName</td>
+                        <td>@movie.language.actualName</td>
+                    </tr>
+            }
+            }.getOrElse {
+                <tr>
+                    <td colspan="2">No movies found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

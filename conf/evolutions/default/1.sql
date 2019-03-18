@@ -5,7 +5,7 @@ create table "movie" (
 	"title" varchar not null,
 	"description" text not null,
 	"release-date" date not null,
-	"country" int not null,
+	"country" varchar not null,
 	"language" varchar(2) not null
 );
 

@@ -15,7 +15,7 @@ class MovieController @Inject()(
     Ok(html.index())
   }
 
-  def list: Action[AnyContent] = Action { implicit request =>
-    Ok(html.index())
+  def list: Action[AnyContent] = Action.async { implicit request =>
+    repo.list().map(movies => Ok(html.movie.list(movies)))
   }
 }
