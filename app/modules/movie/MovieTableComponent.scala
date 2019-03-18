@@ -2,8 +2,9 @@ package modules.movie
 
 import java.sql.Date
 
-import modules.movie.Country.CountryVal
-import modules.movie.Language.LanguageVal
+import modules.util.{Country, Language}
+import modules.util.Country.CountryVal
+import modules.util.Language.LanguageVal
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.db.slick.HasDatabaseConfig
 
@@ -11,7 +12,7 @@ trait MovieTableComponent {  self: HasDatabaseConfig[ExtendedPostgresProfile] =>
   import profile.api._
 
   implicit val countryColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
-    { enum => Country.getName(enum) },
+    { enum => Country.getCountry(enum) },
     { string => Country.findByString(string).getOrElse(Country.NoCountry) }
   )
 

@@ -2,17 +2,18 @@ package modules.director
 
 import java.sql.Date
 
-import modules.director.Gender.GenderVal
-import modules.director.Nationality.NationalityVal
+import modules.util.Country.CountryVal
+import modules.util.{Country, Gender}
+import modules.util.Gender.GenderVal
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.db.slick.HasDatabaseConfig
 
 trait DirectorTableComponent { self: HasDatabaseConfig[ExtendedPostgresProfile] =>
   import profile.api._
 
-  implicit val nationalityColumnType: BaseColumnType[NationalityVal] = MappedColumnType.base[NationalityVal, String](
-    { enum => Nationality.getName(enum) },
-    { string => Nationality.findByString(string).getOrElse(Nationality.noNationality) }
+  implicit val nationalityColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
+    { enum => Country.getNationality(enum) },
+    { string => Country.findByString(string).getOrElse(Country.NoCountry) }
   )
 
   implicit val genderColumnType: BaseColumnType[GenderVal] = MappedColumnType.base[GenderVal, String](
@@ -26,7 +27,7 @@ trait DirectorTableComponent { self: HasDatabaseConfig[ExtendedPostgresProfile] 
     def firstName = column[String]("first-name")
     def lastName = column[String]("last-name")
     def birthDate = column[Date]("birth-date")
-    def nationality = column[NationalityVal]("nationality")
+    def nationality = column[CountryVal]("nationality")
     def height = column[Int]("height")
     def gender = column[GenderVal]("gender")
 
