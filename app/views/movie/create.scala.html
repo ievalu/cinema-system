@@ -1,0 +1,38 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.movie.{CreateMovieForm, Country, Language}
+@(movieForm: Form[CreateMovieForm])(implicit request: MessagesRequestHeader)
+
+@main("Create movie") {
+    @form(
+        modules.movie.routes.MovieController.saveNewMovie(),
+        'class -> s"ui form ${if(movieForm.hasErrors) "error" else ""}"
+    ) {
+        @inputText(
+            movieForm("title"),
+            '_label -> "Title"
+        )
+        @inputText(
+            movieForm("description"),
+            '_label -> "Description"
+        )
+        @inputText(
+            movieForm("releaseDate"), 'type -> "date",
+            '_label -> "Release date"
+        )
+        @select(
+            movieForm("country"),
+            Country.getCountryValues.map(countryVal => (countryVal.dbName, countryVal.actualName)).toSeq,
+            '_label -> "Country"
+        )
+        @select(
+            movieForm("language"),
+            Language.getLanguageValues.map(languageVal => (languageVal.dbName, languageVal.actualName)).toSeq,
+            '_label -> "Language"
+        )
+        @CSRF.formField
+
+        <button id="submit" class="ui primary button" type="submit">Add Movie</button>
+        <a class="ui button" href="@modules.movie.routes.MovieController.list()">Cancel</a>
+    }
+}

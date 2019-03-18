@@ -5,6 +5,8 @@
 # Movies
 GET     /                           modules.movie.MovieController.index
 GET     /movies                     modules.movie.MovieController.list
+GET     /movies/new                 modules.movie.MovieController.createMovie
+POST    /movies                     modules.movie.MovieController.saveNewMovie
 
 # Directors
 

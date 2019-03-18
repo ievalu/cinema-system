@@ -1,7 +1,12 @@
 @import modules.movie.Movie
-@(movies: Seq[Movie])(implicit request: MessagesRequestHeader)
+@(movies: Seq[Movie])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Movies") {
+
+
+
+    <a class="ui button" href="@modules.movie.routes.MovieController.createMovie()">Add new movie</a>
+
     <table class="ui celled table">
         <thead>
             <tr>

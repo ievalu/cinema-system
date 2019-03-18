@@ -45,14 +45,16 @@ package object movie {
     }
 
     def getName(countryVal: CountryVal): String = countryVal match {
-      case USA => USA.actualName
-      case Australia => Australia.actualName
-      case NewZealand => NewZealand.actualName
-      case Spain => Spain.actualName
-      case Sweden => Sweden.actualName
-      case Lithuania => Lithuania.actualName
+      case USA => USA.dbName
+      case Australia => Australia.dbName
+      case NewZealand => NewZealand.dbName
+      case Spain => Spain.dbName
+      case Sweden => Sweden.dbName
+      case Lithuania => Lithuania.dbName
       case _ => "No such country"
     }
+
+    def getCountryValues = Seq(USA, Australia, NewZealand, Spain, Sweden, Lithuania)
   }
 
   def LanguageFormatter: Formatter[LanguageVal] = new Formatter[LanguageVal] {
@@ -69,10 +71,10 @@ package object movie {
   object Language extends Enumeration {
     sealed case class LanguageVal private[Language](dbName: String, actualName: String) extends Val(dbName)
 
-    val english = LanguageVal("en", "english")
-    val swedish = LanguageVal("sw", "swedish")
-    val russian = LanguageVal("ru", "russian")
-    val lithuanian = LanguageVal("lt", "lithuanian")
+    val english = LanguageVal("en", "English")
+    val swedish = LanguageVal("sw", "Swedish")
+    val russian = LanguageVal("ru", "Russian")
+    val lithuanian = LanguageVal("lt", "Lithuanian")
     val NoLanguage = LanguageVal("", "No language")
 
     def findByString(value: String): Option[LanguageVal] = {
@@ -88,15 +90,17 @@ package object movie {
 
     def getName(languageVal: LanguageVal): String =
       languageVal match {
-      case this.english => english.actualName
-      case this.swedish => swedish.actualName
-      case this.russian => russian.actualName
-      case this.lithuanian => lithuanian.actualName
+      case this.english => english.dbName
+      case this.swedish => swedish.dbName
+      case this.russian => russian.dbName
+      case this.lithuanian => lithuanian.dbName
       case _ => "No such language"
     }
+
+    def getLanguageValues = Seq(english, swedish, russian, lithuanian)
   }
 
-  case class Movie(
+  case class Movie (
       id: Long,
       title: String,
       description: String,
@@ -105,4 +109,11 @@ package object movie {
       language: LanguageVal
   )
 
+  case class CreateMovieForm (
+      title: String,
+      description: String,
+      releaseDate: Date,
+      country: CountryVal,
+      language: LanguageVal
+  )
 }
