@@ -17,16 +17,6 @@ class MovieRepository @Inject()(
 ) extends MovieTableComponent with HasDatabaseConfigProvider[ExtendedPostgresProfile]{
   import profile.api._
 
-  implicit val countryColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
-    { enum => Country.getName(enum) },
-    { string => Country.findByString(string).getOrElse(Country.NoCountry) }
-  )
-
-  implicit val languageColumnType: BaseColumnType[LanguageVal] = MappedColumnType.base[LanguageVal, String](
-    { enum => Language.getName(enum) },
-    { string => Language.findByString(string).getOrElse(Language.NoLanguage) }
-  )
-
   private val logger = Logger(this.getClass)
 
   def list(): Future[Seq[Movie]] = db.run {

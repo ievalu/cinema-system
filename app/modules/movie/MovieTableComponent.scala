@@ -10,17 +10,17 @@ import play.api.db.slick.HasDatabaseConfig
 trait MovieTableComponent {  self: HasDatabaseConfig[ExtendedPostgresProfile] =>
   import profile.api._
 
+  implicit val countryColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
+    { enum => Country.getName(enum) },
+    { string => Country.findByString(string).getOrElse(Country.NoCountry) }
+  )
+
+  implicit val languageColumnType: BaseColumnType[LanguageVal] = MappedColumnType.base[LanguageVal, String](
+    { enum => Language.getName(enum) },
+    { string => Language.findByString(string).getOrElse(Language.NoLanguage) }
+  )
+
   class MovieTable(tag: Tag) extends Table[Movie](tag, "movie") {
-
-    implicit val countryColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
-      { enum => Country.getName(enum) },
-      { string => Country.findByString(string).getOrElse(Country.NoCountry) }
-    )
-
-    implicit val languageColumnType: BaseColumnType[LanguageVal] = MappedColumnType.base[LanguageVal, String](
-      { enum => Language.getName(enum) },
-      { string => Language.findByString(string).getOrElse(Language.NoLanguage) }
-    )
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def title = column[String]("title")
