@@ -20,4 +20,9 @@ class GenreRepository @Inject() (
   def list(): Future[Seq[Genre]] = db.run {
     genres.result
   }
+
+  def create(newGenre: CreateGenreForm): Future[Genre] = db.run {
+    (genres.map(g => (g.title)) returning genres.map(_.id)
+      into ((genreTitle, id) => Genre(id, genreTitle))) += (newGenre.title)
+  }
 }

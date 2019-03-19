@@ -1,0 +1,20 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.genre.{CreateGenreForm}
+@(genreForm: Form[CreateGenreForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main("Create movie") {
+    @form(
+    modules.genre.routes.GenreController.saveNewGenre(),
+    'class -> s"ui form ${if(genreForm.hasErrors) "error" else ""}"
+    ) {
+        @inputText(
+            genreForm("title"),
+            '_label -> "Title"
+        )
+        @CSRF.formField
+
+        <button id="submit" class="ui primary button" type="submit">Add Genre</button>
+        <a class="ui button" href="@modules.genre.routes.GenreController.list()">Cancel</a>
+    }
+}

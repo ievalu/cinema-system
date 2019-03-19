@@ -6,4 +6,6 @@ package object genre {
       id: Long,
       title: String
   )
+
+  case class CreateGenreForm (title: String)
 }

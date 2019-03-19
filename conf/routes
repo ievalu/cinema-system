@@ -20,6 +20,8 @@ POST    /actors                     modules.actor.ActorController.saveNewActor
 
 # Genres
 GET     /genres                     modules.genre.GenreController.list
+GET     /genres/new                 modules.genre.GenreController.createGenre
+POST    /genres                     modules.genre.GenreController.saveNewGenre
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
