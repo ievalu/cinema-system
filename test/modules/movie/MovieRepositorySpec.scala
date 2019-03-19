@@ -3,6 +3,7 @@ package modules.movie
 import java.sql.Date
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
+import modules.util.{Country, Language}
 import org.scalatest.TestData
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
