@@ -103,12 +103,12 @@ package object util {
     )
 
     def getName(genderVal: GenderVal) = genderVal match {
-      case Female => Female.actualName
-      case Male => Male.actualName
+      case Female => Female.dbName
+      case Male => Male.dbName
       case _ => "Other"
     }
 
-    def getCountryValues = Seq(Female, Male)
+    def getGenderValues = Seq(Female, Male)
   }
   def LanguageFormatter: Formatter[LanguageVal] = new Formatter[LanguageVal] {
     def bind(key: String, data: Map[String, String]): Either[List[FormError], LanguageVal] = {
