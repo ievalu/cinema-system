@@ -2,7 +2,7 @@
 @import modules.utility.twirl.CustomHelpers._
 @import modules.actor.{CreateActorForm}
 @import modules.util.{Country, Gender}
-@(actorForm: Form[CreateActorForm])(implicit request: MessagesRequestHeader)
+@(actorForm: Form[CreateActorForm])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Add actor") {
 

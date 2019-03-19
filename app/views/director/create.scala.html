@@ -2,7 +2,7 @@
 @import modules.utility.twirl.CustomHelpers._
 @import modules.director.{CreateDirectorForm}
 @import modules.util.{Country, Gender}
-@(directorForm: Form[CreateDirectorForm])(implicit request: MessagesRequestHeader)
+@(directorForm: Form[CreateDirectorForm])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Add director") {
 @form(

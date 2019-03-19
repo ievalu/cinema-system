@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String)(content: Html)(implicit flash: Flash)
 
 <!DOCTYPE html>
 
@@ -20,6 +20,11 @@
             <a class="item" href="@modules.actor.routes.ActorController.list()">Actors</a>
 	    </div>
 		    <div class="ui segment">
+                @flash.get("success").map { message =>
+                    <div class="ui success message">
+                        <strong>Done!</strong> @message
+                    </div>
+                }
 		        @content
 		    </div>
 	    </div>
