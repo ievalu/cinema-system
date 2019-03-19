@@ -14,6 +14,7 @@ GET     /directors/new              modules.director.DirectorController.createDi
 POST    /directors                  modules.director.DirectorController.saveNewDirector
 
 # Actors
+GET     /actors                     modules.actor.ActorController.list
 
 # Genres
 

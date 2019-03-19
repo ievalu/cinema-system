@@ -1,0 +1,37 @@
+@import modules.actor.Actor
+@(actors: Seq[Actor])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main("Actors") {
+
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Birth date</th>
+                <th>Nationality</th>
+                <th>Height</th>
+                <th>Gender</th>
+            </tr>
+        </thead>
+        <tbody>
+            @Option(actors).filter(_.nonEmpty).map { actors =>
+                @actors.map { actor =>
+                    <tr>
+                        <td>
+                            @actor.firstName
+                            @actor.lastName
+                        </td>
+                        <td>@actor.birthDate</td>
+                        <td>@actor.nationality.nationality</td>
+                        <td>@actor.height</td>
+                        <td>@actor.gender.actualName</td>
+                    </tr>
+                }
+                }.getOrElse {
+                <tr>
+                    <td colspan="2">No actors found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
