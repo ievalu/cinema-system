@@ -16,4 +16,13 @@ package object director {
       height: Int,
       gender: GenderVal
   )
+
+  case class CreateDirectorForm (
+      firstName: String,
+      lastName: String,
+      birthDate: Date,
+      nationality: CountryVal,
+      height: Int,
+      gender: GenderVal
+  )
 }
