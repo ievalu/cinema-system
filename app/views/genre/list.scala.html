@@ -1,0 +1,26 @@
+@import modules.genre.Genre
+@(genres: Seq[Genre])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main("Genres") {
+
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            @Option(genres).filter(_.nonEmpty).map { genres =>
+                @genres.map { genre =>
+                    <tr>
+                        <td>@genre.title.toLowerCase.capitalize</td>
+                    </tr>
+                }
+                }.getOrElse {
+                    <tr>
+                        <td colspan="2">No genres found</td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+}
