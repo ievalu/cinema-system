@@ -16,4 +16,13 @@ package object actor {
       height: Int,
       gender: GenderVal
   )
+
+  case class CreateActorForm (
+      firstName: String,
+      lastName: String,
+      birthDate: Date,
+      nationality: CountryVal,
+      height: Int,
+      gender: GenderVal
+  )
 }

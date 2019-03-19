@@ -1,0 +1,45 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.actor.{CreateActorForm}
+@import modules.util.{Country, Gender}
+@(actorForm: Form[CreateActorForm])(implicit request: MessagesRequestHeader)
+
+@main("Add actor") {
+
+    @form(
+        modules.actor.routes.ActorController.saveNewActor(),
+        'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}"
+        ) {
+            @inputText(
+                actorForm("firstName"),
+                '_label -> "First name"
+            )
+            @inputText(
+                actorForm("lastName"),
+                '_label -> "Last name"
+            )
+            @inputText(
+                actorForm("birthDate"), 'type -> "date",
+                '_label -> "Birth date"
+            )
+            @select(
+                actorForm("nationality"),
+                Country.getCountryValues.map(nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)).toSeq,
+                '_label -> "Nationality"
+            )
+            @inputText(
+                actorForm("height"),
+                '_label -> "Height",
+                'type -> "number"
+            )
+            @select(
+                actorForm("gender"),
+                Gender.getGenderValues.map(genderVal => (genderVal.dbName, genderVal.actualName)).toSeq,
+                '_label -> "Gender"
+            )
+            @CSRF.formField
+
+            <button id="submit" class="ui primary button" type="submit">Add actor</button>
+            <a class="ui button" href="@modules.actor.routes.ActorController.list()">Cancel</a>
+        }
+}
