@@ -1,6 +1,7 @@
 package modules.movie
 
 import javax.inject.{Inject, Singleton}
+import modules.util.Page
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -17,8 +18,19 @@ class MovieRepository @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def list(): Future[Seq[Movie]] = db.run {
-    movies.result
+  def count: Future[Int] = db.run(movies.length.result)
+
+  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Movie]] = {
+    val offset = (page - 1) * pageSize
+    for {
+      totalRows <- count
+      movieList <- db.run(
+        movies
+          .drop(offset)
+          .take(pageSize)
+          .result
+      )
+    } yield Page(movieList, page, offset, totalRows)
   }
 
   def findById(id: Long): Future[Option[Movie]] = db.run {

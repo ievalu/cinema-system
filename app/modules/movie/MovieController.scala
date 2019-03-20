@@ -28,8 +28,8 @@ class MovieController @Inject()(
     Ok(html.index())
   }
 
-  def list: Action[AnyContent] = Action.async { implicit request =>
-    repo.list().map(movies => Ok(html.movie.list(movies)))
+  def list(page: Int, pageSize: Int): Action[AnyContent] = Action.async { implicit request =>
+    repo.list(page, pageSize).map(movies => Ok(html.movie.list(movies)))
   }
 
   def createMovie: Action[AnyContent] = Action {

@@ -1,9 +1,12 @@
 @import modules.movie.Movie
-@(movies: Seq[Movie])(implicit request: MessagesRequestHeader, flash: Flash)
+@import modules.util.Page
+@(movies: Page[Movie])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@paginate(page: Int) = @{
+    modules.movie.routes.MovieController.list(page)
+}
 
 @main("Movies") {
-
-
 
     <a class="ui button" href="@modules.movie.routes.MovieController.createMovie()">Add new movie</a>
 
@@ -19,7 +22,7 @@
             </tr>
         </thead>
         <tbody>
-            @Option(movies).filter(_.nonEmpty).map { movies =>
+            @Option(movies.items).filter(_.nonEmpty).map { movies =>
                 @movies.map { movie =>
                     <tr>
                         <td>@movie.title</td>
@@ -51,6 +54,30 @@
             }
         </tbody>
     </table>
+
+    <div class="ui pagination menu">
+        @movies.prev.map { page =>
+            <a class="item" href="@paginate(page)">
+                &larr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &larr;
+            </a>
+        }
+        <a class="active item" style="cursor: default">
+            Displaying @(movies.offset + 1) to @(movies.offset + movies.items.size) of @movies.total
+        </a>
+        @movies.next.map { page =>
+            <a class="item" href="@paginate(page)">
+                &rarr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &rarr;
+            </a>
+        }
+    </div>
 
     <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }
