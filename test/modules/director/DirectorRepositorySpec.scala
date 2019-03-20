@@ -1,6 +1,7 @@
 package modules.director
 
 import java.sql.Date
+import java.time.LocalDate
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import modules.util.{Country, Gender}
@@ -50,6 +51,62 @@ class DirectorRepositorySpec extends PlaySpec
           Country.USA,
           187,
           Gender.Male
+        )
+      }
+    }
+
+    "find director by id" in {
+      implicit lazy val executionContext = app.injector.instanceOf[ExecutionContext]
+      withEvolutions { () =>
+        val repo = app.injector.instanceOf[DirectorRepository]
+        val directorOption = repo
+          .findById(2)
+          .futureValue
+
+        val noneDirector = repo
+            .findById(100)
+            .futureValue
+
+        directorOption mustEqual Some(Director(
+          2,
+          "Clementine",
+          "Johannes",
+          java.sql.Date.valueOf(LocalDate.of(1989, 4, 18)),
+          Country.NewZealand,
+          178,
+          Gender.Female
+        ))
+
+        noneDirector mustEqual None
+      }
+    }
+
+    "update director" in {
+      implicit lazy val executionContext = app.injector.instanceOf[ExecutionContext]
+      withEvolutions { () =>
+        val repo = app.injector.instanceOf[DirectorRepository]
+        val updatedDirector = repo
+          .update(
+            1,
+            CreateDirectorForm(
+              "Clementine",
+              "Duff",
+              java.sql.Date.valueOf(LocalDate.of(1989, 4, 18)),
+              Country.NewZealand,
+              175,
+              Gender.Female
+            )
+          )
+          .futureValue
+
+        updatedDirector mustEqual Director(
+          1,
+          "Clementine",
+          "Duff",
+          java.sql.Date.valueOf(LocalDate.of(1989, 4, 18)),
+          Country.NewZealand,
+          175,
+          Gender.Female
         )
       }
     }

@@ -5,7 +5,7 @@
 
     <a class="ui button" href="@modules.director.routes.DirectorController.createDirector()">Add new director</a>
 
-    <table class="ui celled table">
+    <table class="ui celled table" style="table-layout: fixed">
         <thead>
             <tr>
                 <th>Name</th>
@@ -13,6 +13,7 @@
                 <th>Nationality</th>
                 <th>Height</th>
                 <th>Gender</th>
+                <th style="width: 70px"></th>
             </tr>
         </thead>
         <tbody>
@@ -27,6 +28,21 @@
                         <td>@director.nationality.nationality</td>
                         <td>@director.height</td>
                         <td>@director.gender.actualName</td>
+                        <td style="width: 70px">
+                            <button
+                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                    type="button"
+                                    onclick="location.href='@modules.director.routes.DirectorController.edit(director.id)'">
+                                <i class="edit outline icon"></i>
+                            </button>
+                            <button
+                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                    type="button"
+                                    onclick="deleteRow('@modules.director.routes.DirectorController.delete(director.id)', '/directors')"
+                            >
+                                <i class="trash alternate outline icon"></i>
+                            </button>
+                        </td>
                     </tr>
                 }
                 }.getOrElse {
@@ -36,4 +52,6 @@
             }
         </tbody>
     </table>
+
+    <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

@@ -2,11 +2,11 @@
 @import modules.utility.twirl.CustomHelpers._
 @import modules.director.{CreateDirectorForm}
 @import modules.util.{Country, Gender}
-@(directorForm: Form[CreateDirectorForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(directorForm: Form[CreateDirectorForm], id: Long = 0)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Add director") {
 @form(
-    modules.director.routes.DirectorController.saveNewDirector(),
+    if (directorForm("firstName").value) modules.director.routes.DirectorController.update(id) else modules.director.routes.DirectorController.saveNewDirector(),
     'class -> s"ui form ${if(directorForm.hasErrors) "error" else ""}"
     ) {
         @inputText(
@@ -36,9 +36,12 @@
             Gender.getGenderValues.map(genderVal => (genderVal.dbName, genderVal.actualName)).toSeq,
             '_label -> "Gender"
         )
-        @CSRF.formField
 
-        <button id="submit" class="ui primary button" type="submit">Add director</button>
+        @if(directorForm("firstName").value) {
+            <button id="edit-submit" class="ui primary button" type="submit">Update director</button>
+        } else {
+            <button id="create-submit" class="ui primary button" type="submit">Add director</button>
+        }
         <a class="ui button" href="@modules.director.routes.DirectorController.list()">Cancel</a>
     }
 }

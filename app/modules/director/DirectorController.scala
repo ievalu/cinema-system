@@ -48,4 +48,55 @@ class DirectorController @Inject() (
         }
       )
   }
+
+  // FIX flashing doesn't work
+  def delete(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map{
+          case Some(_) => {
+            val _ = repo.delete(id)
+            Redirect(routes.DirectorController.list()).flashing("success" -> "Director deleted")
+          }
+          case None => Redirect(routes.DirectorController.list()).flashing("error" -> s"No director with such id = $id")
+        }
+  }
+
+  def edit(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map {
+          case Some(director) =>
+            Ok(html.director.create(
+              createDirectorForm
+                .fill(
+                  new CreateDirectorForm(
+                    director.firstName,
+                    director.lastName,
+                    director.birthDate,
+                    director.nationality,
+                    director.height,
+                    director.gender
+                  )),
+              id
+            ))
+          case None => Ok(html.director.create(createDirectorForm))
+        }
+  }
+
+  def update(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      createDirectorForm.bindFromRequest.fold(
+        formWithErrors => {
+          Future.successful(Ok(html.director.create(formWithErrors)))
+        },
+        newDirector => {
+          repo.update(id, newDirector).map {
+            _ => Redirect(routes.DirectorController.list()).flashing("success" -> "Director updated")
+          }
+        }
+      )
+  }
 }

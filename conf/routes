@@ -15,6 +15,9 @@ POST    /movies/:id/edit            modules.movie.MovieController.update(id: Lon
 GET     /directors                  modules.director.DirectorController.list
 GET     /directors/new              modules.director.DirectorController.createDirector
 POST    /directors                  modules.director.DirectorController.saveNewDirector
+DELETE  /directors/:id              modules.director.DirectorController.delete(id: Long)
+GET     /directors/:id/edit         modules.director.DirectorController.edit(id: Long)
+POST    /directors/:id/edit         modules.director.DirectorController.update(id: Long)
 
 # Actors
 GET     /actors                     modules.actor.ActorController.list

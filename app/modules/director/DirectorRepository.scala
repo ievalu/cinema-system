@@ -21,6 +21,10 @@ class DirectorRepository @Inject() (
     directors.result
   }
 
+  def findById(id: Long): Future[Option[Director]] = db.run {
+    directors.filter(d => d.id === id).result.headOption
+  }
+
   def create(newDirector: CreateDirectorForm): Future[Director] = db.run {
     (directors.map(d => (
       d.firstName,
@@ -47,5 +51,39 @@ class DirectorRepository @Inject() (
           newDirector.nationality,
           newDirector.height,
           newDirector.gender)
+  }
+
+  def delete(id: Long): Future[Int] = db.run {
+    directors.filter(d => d.id === id).delete
+  }
+
+  def update(id: Long, newDirector: CreateDirectorForm): Future[Director] = {
+    db.run {
+      (directors returning directors)
+        .insertOrUpdate(
+          Director(
+            id,
+            newDirector.firstName,
+            newDirector.lastName,
+            newDirector.birthDate,
+            newDirector.nationality,
+            newDirector.height,
+            newDirector.gender)
+        )
+    }.map {
+      case Some(director) =>
+        logger.debug(s"Created new director $director")
+        director
+      case None =>
+        logger.debug(s"Updated existing director $newDirector")
+        Director(
+          id,
+          newDirector.firstName,
+          newDirector.lastName,
+          newDirector.birthDate,
+          newDirector.nationality,
+          newDirector.height,
+          newDirector.gender)
+    }
   }
 }
