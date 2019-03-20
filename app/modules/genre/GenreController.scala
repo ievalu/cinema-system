@@ -41,4 +41,47 @@ class GenreController @Inject() (
         }
       )
   }
+
+  // FIX flashing doesn't work
+  def delete(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map{
+          case Some(_) => {
+            val _ = repo.delete(id)
+            Redirect(routes.GenreController.list()).flashing("success" -> "Genre deleted")
+          }
+          case None => Redirect(routes.GenreController.list()).flashing("error" -> s"No genre with such id = $id")
+        }
+  }
+
+  def edit(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map {
+          case Some(genre) =>
+            Ok(html.genre.create(
+              createGenreForm
+                .fill(new CreateGenreForm(genre.title)),
+              id
+            ))
+          case None => Ok(html.genre.create(createGenreForm))
+        }
+  }
+
+  def update(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      createGenreForm.bindFromRequest.fold(
+        formWithErrors => {
+          Future.successful(Ok(html.genre.create(formWithErrors)))
+        },
+        newGenre => {
+          repo.update(id, newGenre).map {
+            _ => Redirect(routes.GenreController.list()).flashing("success" -> "Genre updated")
+          }
+        }
+      )
+  }
 }

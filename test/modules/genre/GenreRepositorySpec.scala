@@ -1,5 +1,7 @@
 package modules.genre
 
+import java.time.LocalDate
+
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import org.scalatest.TestData
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -33,6 +35,44 @@ class GenreRepositorySpec extends PlaySpec
         ).futureValue
 
         genre mustEqual Genre(6, "newGenre")
+      }
+    }
+
+    "find genre by id" in {
+      implicit lazy val executionContext = app.injector.instanceOf[ExecutionContext]
+      withEvolutions { () =>
+        val repo = app.injector.instanceOf[GenreRepository]
+        val optionGenre = repo
+          .findById(1)
+          .futureValue
+        val noneGenre = repo
+          .findById(100)
+          .futureValue
+
+        optionGenre mustEqual Some(Genre(
+          1,
+          "comedy",
+        ))
+
+        noneGenre mustEqual None
+      }
+    }
+
+    "update genre" in {
+      implicit lazy val executionContext = app.injector.instanceOf[ExecutionContext]
+      withEvolutions { () =>
+        val repo = app.injector.instanceOf[GenreRepository]
+        val updatedGenre = repo
+          .update(
+            1,
+            CreateGenreForm(
+              "Romance comedy"))
+          .futureValue
+
+        updatedGenre mustEqual Genre(
+          1,
+          "Romance comedy"
+        )
       }
     }
   }

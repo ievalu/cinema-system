@@ -31,6 +31,9 @@ POST    /actors/:id/edit            modules.actor.ActorController.update(id: Lon
 GET     /genres                     modules.genre.GenreController.list
 GET     /genres/new                 modules.genre.GenreController.createGenre
 POST    /genres                     modules.genre.GenreController.saveNewGenre
+DELETE  /genres/:id                 modules.genre.GenreController.delete(id: Long)
+GET     /genres/:id/edit            modules.genre.GenreController.edit(id: Long)
+POST    /genres/:id/edit            modules.genre.GenreController.update(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

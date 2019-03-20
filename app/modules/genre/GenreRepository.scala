@@ -21,8 +21,32 @@ class GenreRepository @Inject() (
     genres.result
   }
 
+  def findById(id: Long): Future[Option[Genre]] = db.run {
+    genres.filter(g => g.id === id).result.headOption
+  }
+
   def create(newGenre: CreateGenreForm): Future[Genre] = db.run {
     (genres.map(g => (g.title)) returning genres.map(_.id)
       into ((genreTitle, id) => Genre(id, genreTitle))) += (newGenre.title)
+  }
+
+  def update(id: Long, newGenre: CreateGenreForm): Future[Genre] = {
+    db.run {
+      (genres returning genres)
+        .insertOrUpdate(
+          Genre(id, newGenre.title)
+        )
+    }.map {
+      case Some(genre) =>
+        logger.debug(s"Created new genre $genre")
+        genre
+      case None =>
+        logger.debug(s"Updated existing genre $newGenre")
+        Genre(id, newGenre.title)
+    }
+  }
+
+  def delete(id: Long): Future[Int] = db.run {
+    genres.filter(g => g.id === id).delete
   }
 }
