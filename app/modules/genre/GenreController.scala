@@ -19,8 +19,8 @@ class GenreController @Inject() (
     )(CreateGenreForm.apply)(CreateGenreForm.unapply)
   )
 
-  def list: Action[AnyContent] = Action.async { implicit request =>
-    repo.list().map(genres => Ok(html.genre.list(genres)))
+  def list(page: Int, pageSize: Int): Action[AnyContent] = Action.async { implicit request =>
+    repo.list(page, pageSize).map(genres => Ok(html.genre.list(genres)))
   }
 
   def createGenre: Action[AnyContent] = Action {

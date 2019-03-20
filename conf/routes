@@ -12,7 +12,7 @@ GET     /movies/:id/edit            modules.movie.MovieController.edit(id: Long)
 POST    /movies/:id/edit            modules.movie.MovieController.update(id: Long)
 
 # Directors
-GET     /directors                  modules.director.DirectorController.list
+GET     /directors                  modules.director.DirectorController.list(page: Int ?= 1, pageSize: Int ?= 8)
 GET     /directors/new              modules.director.DirectorController.createDirector
 POST    /directors                  modules.director.DirectorController.saveNewDirector
 DELETE  /directors/:id              modules.director.DirectorController.delete(id: Long)
@@ -20,7 +20,7 @@ GET     /directors/:id/edit         modules.director.DirectorController.edit(id:
 POST    /directors/:id/edit         modules.director.DirectorController.update(id: Long)
 
 # Actors
-GET     /actors                     modules.actor.ActorController.list
+GET     /actors                     modules.actor.ActorController.list(page: Int ?= 1, pageSize: Int ?= 8)
 GET     /actors/new                 modules.actor.ActorController.createActor
 POST    /actors                     modules.actor.ActorController.saveNewActor
 DELETE  /actors/:id                 modules.actor.ActorController.delete(id: Long)
@@ -28,7 +28,7 @@ GET     /actors/:id/edit            modules.actor.ActorController.edit(id: Long)
 POST    /actors/:id/edit            modules.actor.ActorController.update(id: Long)
 
 # Genres
-GET     /genres                     modules.genre.GenreController.list
+GET     /genres                     modules.genre.GenreController.list(page: Int ?= 1, pageSize: Int ?= 8)
 GET     /genres/new                 modules.genre.GenreController.createGenre
 POST    /genres                     modules.genre.GenreController.saveNewGenre
 DELETE  /genres/:id                 modules.genre.GenreController.delete(id: Long)

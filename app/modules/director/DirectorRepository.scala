@@ -1,6 +1,7 @@
 package modules.director
 
 import javax.inject.{Inject, Singleton}
+import modules.util.Page
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -17,8 +18,19 @@ class DirectorRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def list(): Future[Seq[Director]] = db.run {
-    directors.result
+  def count: Future[Int] = db.run(directors.length.result)
+
+  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Director]] = {
+    val offset = (page - 1) * pageSize
+    for {
+      totalRows <- count
+      directorList <- db.run(
+        directors
+          .drop(offset)
+          .take(pageSize)
+          .result
+      )
+    } yield Page(directorList, page, offset, totalRows)
   }
 
   def findById(id: Long): Future[Option[Director]] = db.run {

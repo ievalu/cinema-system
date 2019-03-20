@@ -1,5 +1,10 @@
 @import modules.genre.Genre
-@(genres: Seq[Genre])(implicit request: MessagesRequestHeader, flash: Flash)
+@import modules.util.Page
+@(genres: Page[Genre])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@paginate(page: Int) = @{
+    modules.genre.routes.GenreController.list(page)
+}
 
 @main("Genres") {
 
@@ -13,7 +18,7 @@
             </tr>
         </thead>
         <tbody>
-            @Option(genres).filter(_.nonEmpty).map { genres =>
+            @Option(genres.items).filter(_.nonEmpty).map { genres =>
                 @genres.map { genre =>
                     <tr>
                         <td>@genre.title.toLowerCase.capitalize</td>
@@ -41,6 +46,30 @@
             }
         </tbody>
     </table>
+
+    <div class="ui pagination menu">
+        @genres.prev.map { page =>
+            <a class="item" href="@paginate(page)">
+                &larr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &larr;
+            </a>
+        }
+        <a class="active item" style="cursor: default">
+            Displaying @(genres.offset + 1) to @(genres.offset + genres.items.size) of @genres.total
+        </a>
+        @genres.next.map { page =>
+            <a class="item" href="@paginate(page)">
+                &rarr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &rarr;
+            </a>
+        }
+    </div>
 
     <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

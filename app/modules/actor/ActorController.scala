@@ -26,8 +26,8 @@ class ActorController @Inject() (
     )(CreateActorForm.apply)(CreateActorForm.unapply)
   }
 
-  def list: Action[AnyContent] = Action.async { implicit request =>
-    repo.list().map(actors => Ok(html.actor.list(actors)))
+  def list(page: Int, pageSize: Int): Action[AnyContent] = Action.async { implicit request =>
+    repo.list(page, pageSize).map(actors => Ok(html.actor.list(actors)))
   }
 
   def createActor: Action[AnyContent] = Action {

@@ -1,5 +1,10 @@
 @import modules.director.Director
-@(directors: Seq[Director])(implicit request: MessagesRequestHeader, flash: Flash)
+@import modules.util.Page
+@(directors: Page[Director])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@paginate(page: Int) = @{
+    modules.director.routes.DirectorController.list(page)
+}
 
 @main("Directors") {
 
@@ -17,7 +22,7 @@
             </tr>
         </thead>
         <tbody>
-            @Option(directors).filter(_.nonEmpty).map { directors =>
+            @Option(directors.items).filter(_.nonEmpty).map { directors =>
                 @directors.map { director =>
                     <tr>
                         <td>
@@ -52,6 +57,30 @@
             }
         </tbody>
     </table>
+
+    <div class="ui pagination menu">
+        @directors.prev.map { page =>
+            <a class="item" href="@paginate(page)">
+                &larr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &larr;
+            </a>
+        }
+        <a class="active item" style="cursor: default">
+            Displaying @(directors.offset + 1) to @(directors.offset + directors.items.size) of @directors.total
+        </a>
+        @directors.next.map { page =>
+            <a class="item" href="@paginate(page)">
+                &rarr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &rarr;
+            </a>
+        }
+    </div>
 
     <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

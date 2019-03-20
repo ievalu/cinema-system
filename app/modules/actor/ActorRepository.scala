@@ -1,6 +1,7 @@
 package modules.actor
 
 import javax.inject.{Inject, Singleton}
+import modules.util.Page
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -17,8 +18,19 @@ class ActorRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def list(): Future[Seq[Actor]] = db.run {
-    actors.result
+  def count: Future[Int] = db.run(actors.length.result)
+
+  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Actor]] = {
+    val offset = (page - 1) * pageSize
+    for {
+      totalRows <- count
+      actorList <- db.run(
+        actors
+          .drop(offset)
+          .take(pageSize)
+          .result
+      )
+    } yield Page(actorList, page, offset, totalRows)
   }
 
   def findById(id: Long): Future[Option[Actor]] = db.run {

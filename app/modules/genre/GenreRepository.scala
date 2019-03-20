@@ -1,6 +1,7 @@
 package modules.genre
 
 import javax.inject.{Inject, Singleton}
+import modules.util.Page
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -17,8 +18,19 @@ class GenreRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def list(): Future[Seq[Genre]] = db.run {
-    genres.result
+  def count: Future[Int] = db.run(genres.length.result)
+
+  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Genre]] = {
+    val offset = (page - 1) * pageSize
+    for {
+      totalRows <- count
+      genreList <- db.run(
+        genres
+          .drop(offset)
+          .take(pageSize)
+          .result
+      )
+    } yield Page(genreList, page, offset, totalRows)
   }
 
   def findById(id: Long): Future[Option[Genre]] = db.run {

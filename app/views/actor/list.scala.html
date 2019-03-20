@@ -1,5 +1,10 @@
 @import modules.actor.Actor
-@(actors: Seq[Actor])(implicit request: MessagesRequestHeader, flash: Flash)
+@import modules.util.Page
+@(actors: Page[Actor])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@paginate(page: Int) = @{
+    modules.actor.routes.ActorController.list(page)
+}
 
 @main("Actors") {
 
@@ -17,7 +22,7 @@
             </tr>
         </thead>
         <tbody>
-            @Option(actors).filter(_.nonEmpty).map { actors =>
+            @Option(actors.items).filter(_.nonEmpty).map { actors =>
                 @actors.map { actor =>
                     <tr>
                         <td>
@@ -52,6 +57,30 @@
             }
         </tbody>
     </table>
+
+    <div class="ui pagination menu">
+        @actors.prev.map { page =>
+            <a class="item" href="@paginate(page)">
+                &larr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &larr;
+            </a>
+        }
+        <a class="active item" style="cursor: default">
+            Displaying @(actors.offset + 1) to @(actors.offset + actors.items.size) of @actors.total
+        </a>
+        @actors.next.map { page =>
+            <a class="item" href="@paginate(page)">
+                &rarr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &rarr;
+            </a>
+        }
+    </div>
 
     <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

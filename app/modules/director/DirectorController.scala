@@ -26,8 +26,8 @@ class DirectorController @Inject() (
     )(CreateDirectorForm.apply)(CreateDirectorForm.unapply)
   }
 
-  def list: Action[AnyContent] = Action.async { implicit request =>
-    repo.list().map(directors => Ok(html.director.list(directors)))
+  def list(page: Int, pageSize: Int): Action[AnyContent] = Action.async { implicit request =>
+    repo.list(page, pageSize).map(directors => Ok(html.director.list(directors)))
   }
 
   def createDirector: Action[AnyContent] = Action {
