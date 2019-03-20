@@ -7,7 +7,7 @@
 
     <a class="ui button" href="@modules.movie.routes.MovieController.createMovie()">Add new movie</a>
 
-    <table class="ui celled table">
+    <table class="ui celled table" style="table-layout: fixed">
         <thead>
             <tr>
                 <th>Title</th>
@@ -15,6 +15,7 @@
                 <th>Release date</th>
                 <th>Country</th>
                 <th>Language</th>
+                <th style="width: 70px"></th>
             </tr>
         </thead>
         <tbody>
@@ -26,6 +27,21 @@
                         <td>@movie.releaseDate</td>
                         <td>@movie.country.countryName</td>
                         <td>@movie.language.actualName</td>
+                        <td style="width: 70px">
+                            <button
+                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                    type="button"
+                                    onclick="location.href='@modules.movie.routes.MovieController.edit(movie.id)'">
+                                <i class="edit outline icon"></i>
+                            </button>
+                            <button
+                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                    type="button"
+                                    onclick="deleteRow('@modules.movie.routes.MovieController.delete(movie.id)', '/movies')"
+                            >
+                                <i class="trash alternate outline icon"></i>
+                            </button>
+                        </td>
                     </tr>
             }
             }.getOrElse {
@@ -35,4 +51,6 @@
             }
         </tbody>
     </table>
+
+    <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

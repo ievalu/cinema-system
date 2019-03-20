@@ -7,6 +7,9 @@ GET     /                           modules.movie.MovieController.index
 GET     /movies                     modules.movie.MovieController.list
 GET     /movies/new                 modules.movie.MovieController.createMovie
 POST    /movies                     modules.movie.MovieController.saveNewMovie
+DELETE  /movies/:id                 modules.movie.MovieController.delete(id: Long)
+GET     /movies/:id/edit            modules.movie.MovieController.edit(id: Long)
+POST    /movies/:id/edit            modules.movie.MovieController.update(id: Long)
 
 # Directors
 GET     /directors                  modules.director.DirectorController.list

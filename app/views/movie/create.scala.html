@@ -2,11 +2,11 @@
 @import modules.utility.twirl.CustomHelpers._
 @import modules.movie.{CreateMovieForm}
 @import modules.util.{Country, Language}
-@(movieForm: Form[CreateMovieForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(movieForm: Form[CreateMovieForm], id: Long = 0)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Create movie") {
     @form(
-        modules.movie.routes.MovieController.saveNewMovie(),
+        if (movieForm("title").value) modules.movie.routes.MovieController.update(id) else modules.movie.routes.MovieController.saveNewMovie(),
         'class -> s"ui form ${if(movieForm.hasErrors) "error" else ""}"
     ) {
         @inputText(
@@ -31,9 +31,12 @@
             Language.getLanguageValues.map(languageVal => (languageVal.dbName, languageVal.actualName)).toSeq,
             '_label -> "Language"
         )
-        @CSRF.formField
 
-        <button id="submit" class="ui primary button" type="submit">Add Movie</button>
+        @if(movieForm("title").value) {
+            <button class="ui primary button" type="submit">Update Movie</button>
+        } else {
+            <button class="ui primary button" type="submit">Add Movie</button>
+        }
         <a class="ui button" href="@modules.movie.routes.MovieController.list()">Cancel</a>
     }
 }

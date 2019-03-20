@@ -21,9 +21,33 @@ class MovieRepository @Inject()(
     movies.result
   }
 
+  def findById(id: Long): Future[Option[Movie]] = db.run {
+    movies.filter(m => m.id === id).result.headOption
+  }
+
   def create(newMovie: CreateMovieForm): Future[Movie] = db.run {
     (movies.map(m => (m.title, m.description, m.releaseDate, m.country, m.language)) returning movies.map(_.id)
       into ((movieForm, id) => Movie(id, movieForm._1, movieForm._2, movieForm._3, movieForm._4, movieForm._5))) +=
       (newMovie.title, newMovie.description, newMovie.releaseDate, newMovie.country, newMovie.language)
+  }
+
+  def update(id: Long, newMovie: CreateMovieForm): Future[Movie] = {
+    db.run {
+      (movies returning movies)
+        .insertOrUpdate(
+          Movie(id, newMovie.title, newMovie.description, newMovie.releaseDate, newMovie.country, newMovie.language)
+        )
+    }.map {
+      case Some(movie) =>
+        logger.debug(s"Created new movie $movie")
+        movie
+      case None =>
+        logger.debug(s"Updated existing movie $newMovie")
+        Movie(id, newMovie.title, newMovie.description, newMovie.releaseDate, newMovie.country, newMovie.language)
+    }
+  }
+
+  def delete(id: Long): Future[Int] = db.run {
+    movies.filter(m => m.id === id).delete
   }
 }

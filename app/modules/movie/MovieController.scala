@@ -50,4 +50,47 @@ class MovieController @Inject()(
         }
       )
   }
+
+  // FIX flashing doesn't work
+  def delete(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map{
+          case Some(_) => {
+            val _ = repo.delete(id)
+            Redirect(routes.MovieController.list()).flashing("success" -> "Movie deleted")
+          }
+          case None => Redirect(routes.MovieController.list()).flashing("error" -> s"No movie with such id = $id")
+      }
+  }
+
+  def edit(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map {
+          case Some(movie) =>
+            Ok(html.movie.create(
+              createMovieForm
+                .fill(new CreateMovieForm(movie.title, movie.description, movie.releaseDate, movie.country, movie.language)),
+              id
+            ))
+          case None => Ok(html.movie.create(createMovieForm))
+        }
+  }
+
+  def update(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      createMovieForm.bindFromRequest.fold(
+        formWithErrors => {
+          Future.successful(Ok(html.movie.create(formWithErrors)))
+        },
+        newMovie => {
+          repo.update(id, newMovie).map {
+            _ => Redirect(routes.MovieController.list()).flashing("success" -> "Movie updated")
+          }
+        }
+      )
+  }
 }

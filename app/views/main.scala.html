@@ -26,6 +26,11 @@
                         <strong>Done!</strong> @message
                     </div>
                 }
+                @flash.get("error").map { message =>
+                    <div class="ui negative message">
+                        <strong>Error!</strong> @message
+                    </div>
+                }
 		        @content
 		    </div>
 	    </div>
