@@ -48,4 +48,55 @@ class ActorController @Inject() (
         }
       )
   }
+
+  // FIX flashing doesn't work
+  def delete(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map{
+          case Some(_) => {
+            val _ = repo.delete(id)
+            Redirect(routes.ActorController.list()).flashing("success" -> "Actor deleted")
+          }
+          case None => Redirect(routes.ActorController.list()).flashing("error" -> s"No actor with such id = $id")
+        }
+  }
+
+  def edit(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      repo
+        .findById(id)
+        .map {
+          case Some(actor) =>
+            Ok(html.actor.create(
+              createActorForm
+                .fill(
+                  new CreateActorForm(
+                    actor.firstName,
+                    actor.lastName,
+                    actor.birthDate,
+                    actor.nationality,
+                    actor.height,
+                    actor.gender
+                  )),
+              id
+            ))
+          case None => Ok(html.actor.create(createActorForm))
+        }
+  }
+
+  def update(id: Long): Action[AnyContent] = Action.async {
+    implicit request =>
+      createActorForm.bindFromRequest.fold(
+        formWithErrors => {
+          Future.successful(Ok(html.actor.create(formWithErrors)))
+        },
+        newActor => {
+          repo.update(id, newActor).map {
+            _ => Redirect(routes.ActorController.list()).flashing("success" -> "Actor updated")
+          }
+        }
+      )
+  }
 }

@@ -2,12 +2,12 @@
 @import modules.utility.twirl.CustomHelpers._
 @import modules.actor.{CreateActorForm}
 @import modules.util.{Country, Gender}
-@(actorForm: Form[CreateActorForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(actorForm: Form[CreateActorForm], id: Long = 0)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Add actor") {
 
     @form(
-        modules.actor.routes.ActorController.saveNewActor(),
+        if (actorForm("firstName").value) modules.actor.routes.ActorController.update(id) else modules.actor.routes.ActorController.saveNewActor(),
         'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}"
         ) {
             @inputText(
@@ -37,9 +37,12 @@
                 Gender.getGenderValues.map(genderVal => (genderVal.dbName, genderVal.actualName)).toSeq,
                 '_label -> "Gender"
             )
-            @CSRF.formField
 
-            <button id="submit" class="ui primary button" type="submit">Add actor</button>
+            @if(actorForm("firstName").value) {
+                <button id="edit-submit" class="ui primary button" type="submit">Update actor</button>
+            } else {
+                <button id="create-submit" class="ui primary button" type="submit">Add actor</button>
+            }
             <a class="ui button" href="@modules.actor.routes.ActorController.list()">Cancel</a>
         }
 }

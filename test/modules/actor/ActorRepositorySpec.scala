@@ -1,6 +1,7 @@
 package modules.actor
 
 import java.sql.Date
+import java.time.LocalDate
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import modules.util.{Country, Gender}
@@ -53,6 +54,61 @@ class ActorRepositorySpec extends PlaySpec
         )
       }
     }
-  }
 
+    "find actor by id" in {
+      implicit lazy val executionContext = app.injector.instanceOf[ExecutionContext]
+      withEvolutions { () =>
+        val repo = app.injector.instanceOf[ActorRepository]
+        val actorOption = repo
+          .findById(2)
+          .futureValue
+
+        val noneActor = repo
+          .findById(100)
+          .futureValue
+
+        actorOption mustEqual Some(Actor(
+          2,
+          "Cameron",
+          "Frisbee",
+          java.sql.Date.valueOf(LocalDate.of(1981, 10, 27)),
+          Country.Australia,
+          174,
+          Gender.Male
+        ))
+
+        noneActor mustEqual None
+      }
+    }
+
+    "update actor" in {
+      implicit lazy val executionContext = app.injector.instanceOf[ExecutionContext]
+      withEvolutions { () =>
+        val repo = app.injector.instanceOf[ActorRepository]
+        val updatedActor = repo
+          .update(
+            2,
+            CreateActorForm(
+              "Cameron",
+              "John",
+              java.sql.Date.valueOf(LocalDate.of(1981, 10, 27)),
+              Country.Australia,
+              174,
+              Gender.Male
+            )
+          )
+          .futureValue
+
+        updatedActor mustEqual Actor(
+          2,
+          "Cameron",
+          "John",
+          java.sql.Date.valueOf(LocalDate.of(1981, 10, 27)),
+          Country.Australia,
+          174,
+          Gender.Male
+        )
+      }
+    }
+  }
 }
