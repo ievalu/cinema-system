@@ -23,6 +23,9 @@ POST    /directors/:id/edit         modules.director.DirectorController.update(i
 GET     /actors                     modules.actor.ActorController.list
 GET     /actors/new                 modules.actor.ActorController.createActor
 POST    /actors                     modules.actor.ActorController.saveNewActor
+DELETE  /actors/:id                 modules.actor.ActorController.delete(id: Long)
+GET     /actors/:id/edit            modules.actor.ActorController.edit(id: Long)
+POST    /actors/:id/edit            modules.actor.ActorController.update(id: Long)
 
 # Genres
 GET     /genres                     modules.genre.GenreController.list
