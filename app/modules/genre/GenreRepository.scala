@@ -18,14 +18,17 @@ class GenreRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def count: Future[Int] = db.run(genres.length.result)
+  def filterLogic(title: String) = genres.filter(genre => genre.title like title)
 
-  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Genre]] = {
+  def count(title: String): Future[Int] = db.run(filterLogic(title).length.result)
+
+  def list(page: Int = 1, pageSize: Int = 8, title: String = "%"): Future[Page[Genre]] = {
     val offset = (page - 1) * pageSize
+    val filteredQuery = filterLogic(title)
     for {
-      totalRows <- count
+      totalRows <- count(title)
       genreList <- db.run(
-        genres
+        filteredQuery
           .drop(offset)
           .take(pageSize)
           .result

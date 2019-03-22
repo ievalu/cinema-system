@@ -28,7 +28,7 @@ GET     /actors/:id/edit            modules.actor.ActorController.edit(id: Long)
 POST    /actors/:id/edit            modules.actor.ActorController.update(id: Long)
 
 # Genres
-GET     /genres                     modules.genre.GenreController.list(page: Int ?= 1, pageSize: Int ?= 8)
+GET     /genres                     modules.genre.GenreController.list(page: Int ?= 1, pageSize: Int ?= 8, title: String ?= "")
 GET     /genres/new                 modules.genre.GenreController.createGenre
 POST    /genres                     modules.genre.GenreController.saveNewGenre
 DELETE  /genres/:id                 modules.genre.GenreController.delete(id: Long)

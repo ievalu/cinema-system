@@ -5,6 +5,9 @@ import modules.util.Gender.GenderVal
 import modules.util.Language.LanguageVal
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import play.api.mvc.QueryStringBindable
+
+import scala.util.{Failure, Success, Try}
 
 package object util {
 
@@ -75,6 +78,27 @@ package object util {
     }
 
     def getCountryValues = Seq(USA, Australia, NewZealand, Spain, Sweden, Lithuania)
+
+    implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
+      new QueryStringBindable[CountryVal] {
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, CountryVal]] = {
+          stringBinder.bind(key, params)
+            .map {
+              case Right(s) =>
+                Try(Country.findByString(s)) match {
+                  case Success(country) =>
+                    Right(country.get)
+                  case Failure(_) =>
+                    Left(s"Failed to parse country from '$s'")
+                }
+              case Left(baseBinderFailure) =>
+                Left(baseBinderFailure)
+            }
+        }
+        override def unbind(key: String, country: CountryVal): String = {
+          stringBinder.unbind(key, country.dbName)
+        }
+      }
   }
 
   def GenderFormatter: Formatter[GenderVal] = new Formatter[GenderVal] {
@@ -109,6 +133,27 @@ package object util {
     }
 
     def getGenderValues = Seq(Female, Male)
+
+    implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
+      new QueryStringBindable[GenderVal] {
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, GenderVal]] = {
+          stringBinder.bind(key, params)
+            .map {
+              case Right(s) =>
+                Try(Gender.findByString(s)) match {
+                  case Success(gender) =>
+                    Right(gender.get)
+                  case Failure(_) =>
+                    Left(s"Failed to parse gender from '$s'")
+                }
+              case Left(baseBinderFailure) =>
+                Left(baseBinderFailure)
+            }
+        }
+        override def unbind(key: String, gender: GenderVal): String = {
+          stringBinder.unbind(key, gender.dbName)
+        }
+      }
   }
   def LanguageFormatter: Formatter[LanguageVal] = new Formatter[LanguageVal] {
     def bind(key: String, data: Map[String, String]): Either[List[FormError], LanguageVal] = {
@@ -151,6 +196,27 @@ package object util {
       }
 
     def getLanguageValues = Seq(english, swedish, russian, lithuanian)
+
+    implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
+      new QueryStringBindable[LanguageVal] {
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, LanguageVal]] = {
+          stringBinder.bind(key, params)
+            .map {
+              case Right(s) =>
+                Try(Language.findByString(s)) match {
+                  case Success(language) =>
+                    Right(language.get)
+                  case Failure(_) =>
+                    Left(s"Failed to parse language from '$s'")
+                }
+              case Left(baseBinderFailure) =>
+                Left(baseBinderFailure)
+            }
+        }
+        override def unbind(key: String, language: LanguageVal): String = {
+          stringBinder.unbind(key, language.dbName)
+        }
+      }
   }
 
   case class Page[A](items: Seq[A], page: Int, offset: Long, total: Long) {
