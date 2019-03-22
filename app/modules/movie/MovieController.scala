@@ -1,11 +1,14 @@
 package modules.movie
 
+import java.sql.Date
+
 import javax.inject._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
 import views.html
 import modules.util._
+import java.text.SimpleDateFormat
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -24,12 +27,45 @@ class MovieController @Inject()(
     )(CreateMovieForm.apply)(CreateMovieForm.unapply)
   }
 
+  val filterMovieForm: Form[FilterMovieForm] = Form {
+    mapping(
+      "title" -> nonEmptyText,
+      "description" -> nonEmptyText,
+      "releaseDate" -> optional(sqlDate)
+    )(FilterMovieForm.apply)(FilterMovieForm.unapply)
+  }
+
   def index: Action[AnyContent] = Action { implicit request =>
     Ok(html.index())
   }
 
-  def list(page: Int, pageSize: Int): Action[AnyContent] = Action.async { implicit request =>
-    repo.list(page, pageSize).map(movies => Ok(html.movie.list(movies)))
+  def list(
+      page: Int,
+      pageSize: Int,
+      title: String = "%",
+      description: String = "%",
+      releaseDate: String
+  ): Action[AnyContent] = Action.async { implicit request =>
+    def parseDate(date: String): Option[Date] = {
+      if (date == "") None
+      else {
+        val format = new SimpleDateFormat("yyyy-MM-dd")
+        val parsed = format.parse(date)
+        Some(new Date(parsed.getTime))
+      }
+    }
+    repo.list(
+      page,
+      pageSize,
+      "%" + title + "%",
+      "%" + description + "%",
+      parseDate(releaseDate)
+    )
+      .map(movies =>
+        Ok(html.movie.list(
+          movies, filterMovieForm.fill(FilterMovieForm(title, description, parseDate(releaseDate))))
+        )
+      )
   }
 
   def createMovie: Action[AnyContent] = Action {

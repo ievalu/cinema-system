@@ -1,7 +1,9 @@
 package modules.movie
 
+import java.sql.Date
+
 import javax.inject.{Inject, Singleton}
-import modules.util.Page
+import modules.util.{Page}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -18,18 +20,44 @@ class MovieRepository @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def count: Future[Int] = db.run(movies.length.result)
+  def filterLogic(
+      title: String = "%",
+      description: String = "%",
+      releaseDate: Option[Date]
+  ) = {
+    val firstQuery = movies
+      .filter(movie => movie.title.toLowerCase like title.toLowerCase)
+      .filter(movie => movie.description.toLowerCase like description.toLowerCase)
+    val dateFilteredQuery = releaseDate match {
+      case Some(date) => firstQuery.filter(movie => movie.releaseDate === date)
+      case None => firstQuery
+    }
+    dateFilteredQuery
+  }
 
-  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Movie]] = {
+  def count(
+      title: String = "%",
+      description: String = "%",
+      releaseDate: Option[Date]
+  ): Future[Int] = db.run(filterLogic(title, description, releaseDate).length.result)
+
+  def list(
+      page: Int = 1,
+      pageSize: Int = 8,
+      title: String = "%",
+      description: String = "%",
+      releaseDate: Option[Date]
+  ): Future[Page[Movie]] = {
     val offset = (page - 1) * pageSize
+    val filteredQuery = filterLogic(title, description, releaseDate)
     for {
-      totalRows <- count
-      movieList <- db.run(
-        movies
+      totalRows <- count(title, description, releaseDate)
+      movieList <- db.run {
+        filteredQuery
           .drop(offset)
           .take(pageSize)
           .result
-      )
+      }
     } yield Page(movieList, page, offset, totalRows)
   }
 

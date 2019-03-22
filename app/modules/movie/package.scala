@@ -23,4 +23,10 @@ package object movie {
       country: CountryVal,
       language: LanguageVal
   )
+
+  case class FilterMovieForm (
+      title: String,
+      description: String,
+      releaseDate: Option[Date]
+  )
 }

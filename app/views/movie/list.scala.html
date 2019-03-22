@@ -1,6 +1,9 @@
 @import modules.movie.Movie
 @import modules.util.Page
-@(movies: Page[Movie])(implicit request: MessagesRequestHeader, flash: Flash)
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.movie.{FilterMovieForm}
+@(movies: Page[Movie], filterForm: Form[FilterMovieForm])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @paginate(page: Int) = @{
     modules.movie.routes.MovieController.list(page)
@@ -8,54 +11,84 @@
 
 @main("Movies") {
 
+    @form(
+        modules.movie.routes.MovieController.list(),
+        'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+    ) {
+
     <a class="ui button" href="@modules.movie.routes.MovieController.createMovie()">Add new movie</a>
+    <button id="submit" class="ui primary button" type="submit">Filter</button>
 
-    <table class="ui celled table" style="table-layout: fixed">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Release date</th>
-                <th>Country</th>
-                <th>Language</th>
-                <th style="width: 70px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @Option(movies.items).filter(_.nonEmpty).map { movies =>
-                @movies.map { movie =>
-                    <tr>
-                        <td>@movie.title</td>
-                        <td>@movie.description</td>
-                        <td>@movie.releaseDate</td>
-                        <td>@movie.country.countryName</td>
-                        <td>@movie.language.actualName</td>
-                        <td style="width: 70px">
-                            <button
-                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                    type="button"
-                                    onclick="location.href='@modules.movie.routes.MovieController.edit(movie.id)'">
-                                <i class="edit outline icon"></i>
-                            </button>
-                            <button
-                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                    type="button"
-                                    onclick="deleteRow('@modules.movie.routes.MovieController.delete(movie.id)', '/movies')"
-                            >
-                                <i class="trash alternate outline icon"></i>
-                            </button>
-                        </td>
-                    </tr>
-            }
-            }.getOrElse {
+        <table class="ui celled table" style="table-layout: fixed">
+            <thead>
                 <tr>
-                    <td colspan="2">No movies found</td>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Release date</th>
+                    <th>Country</th>
+                    <th>Language</th>
+                    <th style="width: 70px"></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @inputText(
+                            filterForm("title"),
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @inputText(
+                            filterForm("description"),
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @inputText(
+                            filterForm("releaseDate"), 'type -> "date",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                @Option(movies.items).filter(_.nonEmpty).map { movies =>
+                    @movies.map { movie =>
+                        <tr>
+                            <td>@movie.title</td>
+                            <td>@movie.description</td>
+                            <td>@movie.releaseDate</td>
+                            <td>@movie.country.countryName</td>
+                            <td>@movie.language.actualName</td>
+                            <td style="width: 70px">
+                                <button
+                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                        type="button"
+                                        onclick="location.href='@modules.movie.routes.MovieController.edit(movie.id)'">
+                                    <i class="edit outline icon"></i>
+                                </button>
+                                <button
+                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                        type="button"
+                                        onclick="deleteRow('@modules.movie.routes.MovieController.delete(movie.id)', '/movies')"
+                                >
+                                    <i class="trash alternate outline icon"></i>
+                                </button>
+                            </td>
+                        </tr>
+                }
+                }.getOrElse {
+                    <tr>
+                        <td colspan="2">No movies found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 
-    <div class="ui pagination menu">
+    <div class="ui pagination menu" style="margin-top: 10px">
         @movies.prev.map { page =>
             <a class="item" href="@paginate(page)">
                 &larr;
