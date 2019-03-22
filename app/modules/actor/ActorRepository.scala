@@ -1,5 +1,7 @@
 package modules.actor
 
+import java.sql.Date
+
 import javax.inject.{Inject, Singleton}
 import modules.util.Page
 import modules.utility.database.ExtendedPostgresProfile
@@ -18,14 +20,57 @@ class ActorRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def count: Future[Int] = db.run(actors.length.result)
+  def filterLogic(
+      name: String = "%",
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  ) = {
+    val nameArr = name.toLowerCase.split(" ")
+    val firstQuery = actors
+      .filter(
+        actor => nameArr.length match {
+          case 1 => {
+            (actor.firstName.toLowerCase like nameArr(0)) ||
+              (actor.lastName.toLowerCase like nameArr(0))
+          }
+          case 2 => {
+            (actor.firstName.toLowerCase like nameArr(0)) ||
+              (actor.lastName.toLowerCase like nameArr(0)) ||
+              (actor.firstName.toLowerCase like nameArr(1)) ||
+              (actor.lastName.toLowerCase like nameArr(1))
+          }
+        }
+      )
+      .filter(actor => actor.height >= heightMin && actor.height <= heightMax)
+    val dateFilteredQuery = birthDate match {
+      case Some(date) => firstQuery.filter(actor => actor.birthDate === date)
+      case None => firstQuery
+    }
+    dateFilteredQuery
+  }
 
-  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Actor]] = {
+  def count(
+      name: String = "%",
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  ): Future[Int] = db.run(filterLogic(name, birthDate, heightMin, heightMax).length.result)
+
+  def list(
+      page: Int = 1,
+      pageSize: Int = 8,
+      name: String = "%",
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  ): Future[Page[Actor]] = {
     val offset = (page - 1) * pageSize
+    val filteredQuery = filterLogic(name, birthDate, heightMin, heightMax)
     for {
-      totalRows <- count
+      totalRows <- count(name, birthDate, heightMin, heightMax)
       actorList <- db.run(
-        actors
+        filteredQuery
           .drop(offset)
           .take(pageSize)
           .result

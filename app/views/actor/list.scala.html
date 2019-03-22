@@ -1,6 +1,9 @@
 @import modules.actor.Actor
 @import modules.util.Page
-@(actors: Page[Actor])(implicit request: MessagesRequestHeader, flash: Flash)
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.actor.{FilterActorForm}
+@(actors: Page[Actor], filterForm: Form[FilterActorForm])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @paginate(page: Int) = @{
     modules.actor.routes.ActorController.list(page)
@@ -8,55 +11,92 @@
 
 @main("Actors") {
 
-    <a class="ui button" href="@modules.actor.routes.ActorController.createActor()">Add new actor</a>
+    @form(
+        modules.actor.routes.ActorController.list(),
+        'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+    ) {
 
-    <table class="ui celled table" style="table-layout: fixed">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Birth date</th>
-                <th>Nationality</th>
-                <th>Height</th>
-                <th>Gender</th>
-                <th style="width: 70px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @Option(actors.items).filter(_.nonEmpty).map { actors =>
-                @actors.map { actor =>
+        <a class="ui button" href="@modules.actor.routes.ActorController.createActor()">Add new actor</a>
+        <button id="submit" class="ui primary button" type="submit">Filter</button>
+
+        <table class="ui celled table" style="table-layout: fixed">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Birth date</th>
+                    <th>Nationality</th>
+                    <th>Height</th>
+                    <th>Gender</th>
+                    <th style="width: 70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @inputText(
+                            filterForm("name"),
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @inputText(
+                            filterForm("birthDate"),
+                            'type -> "date",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td></td>
+                    <td>
+                        @inputText(
+                            filterForm("heightMin"),
+                            '_label -> "",
+                            'type -> "number"
+                        )
+                        @inputText(
+                            filterForm("heightMax"),
+                            '_label -> "",
+                            'type -> "number"
+                        )
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                @Option(actors.items).filter(_.nonEmpty).map { actors =>
+                    @actors.map { actor =>
+                        <tr>
+                            <td>
+                                @actor.firstName
+                                @actor.lastName
+                            </td>
+                            <td>@actor.birthDate</td>
+                            <td>@actor.nationality.nationality</td>
+                            <td>@actor.height</td>
+                            <td>@actor.gender.actualName</td>
+                            <td style="width: 70px">
+                                <button
+                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                        type="button"
+                                        onclick="location.href='@modules.actor.routes.ActorController.edit(actor.id)'">
+                                    <i class="edit outline icon"></i>
+                                </button>
+                                <button
+                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                        type="button"
+                                        onclick="deleteRow('@modules.actor.routes.ActorController.delete(actor.id)', '/actors')"
+                                >
+                                    <i class="trash alternate outline icon"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    }.getOrElse {
                     <tr>
-                        <td>
-                            @actor.firstName
-                            @actor.lastName
-                        </td>
-                        <td>@actor.birthDate</td>
-                        <td>@actor.nationality.nationality</td>
-                        <td>@actor.height</td>
-                        <td>@actor.gender.actualName</td>
-                        <td style="width: 70px">
-                            <button
-                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                    type="button"
-                                    onclick="location.href='@modules.actor.routes.ActorController.edit(actor.id)'">
-                                <i class="edit outline icon"></i>
-                            </button>
-                            <button
-                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                    type="button"
-                                    onclick="deleteRow('@modules.actor.routes.ActorController.delete(actor.id)', '/actors')"
-                            >
-                                <i class="trash alternate outline icon"></i>
-                            </button>
-                        </td>
+                        <td colspan="2">No actors found</td>
                     </tr>
                 }
-                }.getOrElse {
-                <tr>
-                    <td colspan="2">No actors found</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    }
 
     <div class="ui pagination menu">
         @actors.prev.map { page =>

@@ -25,4 +25,11 @@ package object actor {
       height: Int,
       gender: GenderVal
   )
+
+  case class FilterActorForm (
+      name: String,
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  )
 }

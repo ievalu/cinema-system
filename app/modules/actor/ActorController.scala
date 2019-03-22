@@ -7,6 +7,7 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints.{max, min}
 import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
 import views.html
+import modules.util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -26,8 +27,26 @@ class ActorController @Inject() (
     )(CreateActorForm.apply)(CreateActorForm.unapply)
   }
 
-  def list(page: Int, pageSize: Int): Action[AnyContent] = Action.async { implicit request =>
-    repo.list(page, pageSize).map(actors => Ok(html.actor.list(actors)))
+  val filterActorForm: Form[FilterActorForm] = Form {
+    mapping(
+      "name" -> nonEmptyText,
+      "birthDate" -> optional(sqlDate),
+      "heightMin" -> number.verifying(min(0), max(300)),
+      "heightMax" -> number.verifying(min(0), max(300))
+    )(FilterActorForm.apply)(FilterActorForm.unapply)
+  }
+
+  def list(
+      page: Int,
+      pageSize: Int,
+      name: String,
+      birthDate: String,
+      heightMin: Int,
+      heightMax: Int
+  ): Action[AnyContent] = Action.async { implicit request =>
+    repo
+      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), heightMin, heightMax)
+      .map(actors => Ok(html.actor.list(actors, filterActorForm.fill(FilterActorForm(name, parseDate(birthDate), heightMin, heightMax)))))
   }
 
   def createActor: Action[AnyContent] = Action {
