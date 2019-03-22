@@ -1,5 +1,8 @@
 package modules
 
+import java.sql.Date
+import java.text.SimpleDateFormat
+
 import modules.util.Country.CountryVal
 import modules.util.Gender.GenderVal
 import modules.util.Language.LanguageVal
@@ -222,5 +225,14 @@ package object util {
   case class Page[A](items: Seq[A], page: Int, offset: Long, total: Long) {
     lazy val prev = Option(page - 1).filter(_ > 0)
     lazy val next = Option(page + 1).filter(_ => (offset + items.size) < total)
+  }
+
+  def parseDate(date: String): Option[Date] = {
+    if (date == "") None
+    else {
+      val format = new SimpleDateFormat("yyyy-MM-dd")
+      val parsed = format.parse(date)
+      Some(new Date(parsed.getTime))
+    }
   }
 }

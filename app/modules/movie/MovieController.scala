@@ -1,14 +1,11 @@
 package modules.movie
 
-import java.sql.Date
-
 import javax.inject._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
 import views.html
 import modules.util._
-import java.text.SimpleDateFormat
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,14 +43,6 @@ class MovieController @Inject()(
       description: String = "%",
       releaseDate: String
   ): Action[AnyContent] = Action.async { implicit request =>
-    def parseDate(date: String): Option[Date] = {
-      if (date == "") None
-      else {
-        val format = new SimpleDateFormat("yyyy-MM-dd")
-        val parsed = format.parse(date)
-        Some(new Date(parsed.getTime))
-      }
-    }
     repo.list(
       page,
       pageSize,

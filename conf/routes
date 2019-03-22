@@ -12,7 +12,7 @@ GET     /movies/:id/edit            modules.movie.MovieController.edit(id: Long)
 POST    /movies/:id/edit            modules.movie.MovieController.update(id: Long)
 
 # Directors
-GET     /directors                  modules.director.DirectorController.list(page: Int ?= 1, pageSize: Int ?= 8)
+GET     /directors                  modules.director.DirectorController.list(page: Int ?= 1, pageSize: Int ?= 8, name: String ?= "", birthDate ?= "", heightMin: Int ?= 0, heightMax: Int ?= 300)
 GET     /directors/new              modules.director.DirectorController.createDirector
 POST    /directors                  modules.director.DirectorController.saveNewDirector
 DELETE  /directors/:id              modules.director.DirectorController.delete(id: Long)

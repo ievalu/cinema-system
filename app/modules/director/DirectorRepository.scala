@@ -1,5 +1,7 @@
 package modules.director
 
+import java.sql.Date
+
 import javax.inject.{Inject, Singleton}
 import modules.util.Page
 import modules.utility.database.ExtendedPostgresProfile
@@ -18,14 +20,57 @@ class DirectorRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def count: Future[Int] = db.run(directors.length.result)
+  def filterLogic(
+      name: String = "%",
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  ) = {
+    val nameArr = name.toLowerCase.split(" ")
+    val firstQuery = directors
+      .filter(
+        director => nameArr.length match {
+          case 1 => {
+            (director.firstName.toLowerCase like nameArr(0)) ||
+              (director.lastName.toLowerCase like nameArr(0))
+          }
+          case 2 => {
+            (director.firstName.toLowerCase like nameArr(0)) ||
+            (director.lastName.toLowerCase like nameArr(0)) ||
+            (director.firstName.toLowerCase like nameArr(1)) ||
+            (director.lastName.toLowerCase like nameArr(1))
+          }
+        }
+      )
+      .filter(director => director.height >= heightMin && director.height <= heightMax)
+    val dateFilteredQuery = birthDate match {
+      case Some(date) => firstQuery.filter(director => director.birthDate === date)
+      case None => firstQuery
+    }
+    dateFilteredQuery
+  }
 
-  def list(page: Int = 1, pageSize: Int = 8): Future[Page[Director]] = {
+  def count(
+      name: String = "%",
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  ): Future[Int] = db.run(filterLogic(name, birthDate, heightMin, heightMax).length.result)
+
+  def list(
+      page: Int = 1,
+      pageSize: Int = 8,
+      name: String = "%",
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  ): Future[Page[Director]] = {
     val offset = (page - 1) * pageSize
+    val filteredQuery = filterLogic(name, birthDate, heightMin, heightMax)
     for {
-      totalRows <- count
+      totalRows <- count(name, birthDate, heightMin, heightMax)
       directorList <- db.run(
-        directors
+        filteredQuery
           .drop(offset)
           .take(pageSize)
           .result

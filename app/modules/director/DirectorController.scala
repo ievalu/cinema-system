@@ -7,6 +7,7 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
 import views.html
+import modules.util._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -26,8 +27,29 @@ class DirectorController @Inject() (
     )(CreateDirectorForm.apply)(CreateDirectorForm.unapply)
   }
 
-  def list(page: Int, pageSize: Int): Action[AnyContent] = Action.async { implicit request =>
-    repo.list(page, pageSize).map(directors => Ok(html.director.list(directors)))
+  val filterDirectorForm: Form[FilterDirectorForm] = Form {
+    mapping(
+      "name" -> nonEmptyText,
+      "birthDate" -> optional(sqlDate),
+      "heightMin" -> number.verifying(min(0), max(300)),
+      "heightMax" -> number.verifying(min(0), max(300))
+    )(FilterDirectorForm.apply)(FilterDirectorForm.unapply)
+  }
+
+  def list(
+      page: Int,
+      pageSize: Int,
+      name: String,
+      birthDate: String,
+      heightMin: Int,
+      heightMax: Int
+  ): Action[AnyContent] = Action.async { implicit request =>
+    repo
+      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), heightMin, heightMax)
+      .map(
+        directors =>
+          Ok(html.director.list(directors, filterDirectorForm.fill(FilterDirectorForm(name, parseDate(birthDate), heightMin, heightMax))))
+      )
   }
 
   def createDirector: Action[AnyContent] = Action {

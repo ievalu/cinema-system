@@ -25,4 +25,11 @@ package object director {
       height: Int,
       gender: GenderVal
   )
+
+  case class FilterDirectorForm (
+      name: String,
+      birthDate: Option[Date],
+      heightMin: Int,
+      heightMax: Int
+  )
 }
