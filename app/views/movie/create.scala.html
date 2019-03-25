@@ -33,9 +33,9 @@
         )
 
         @if(movieForm("title").value) {
-            <button class="ui primary button" type="submit">Update Movie</button>
+            <button id="edit-submit" class="ui primary button" type="submit">Update Movie</button>
         } else {
-            <button class="ui primary button" type="submit">Add Movie</button>
+            <button id="create-submit" class="ui primary button" type="submit">Add Movie</button>
         }
         <a class="ui button" href="@modules.movie.routes.MovieController.list()">Cancel</a>
     }
