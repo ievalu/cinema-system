@@ -12,12 +12,12 @@ trait MovieTableComponent {  self: HasDatabaseConfig[ExtendedPostgresProfile] =>
   import profile.api._
 
   implicit val countryColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
-    { enum => Country.getCountry(enum) },
+    { enum => enum.dbName },
     { string => Country.findByString(string).getOrElse(Country.NoCountry) }
   )
 
   implicit val languageColumnType: BaseColumnType[LanguageVal] = MappedColumnType.base[LanguageVal, String](
-    { enum => Language.getName(enum) },
+    { enum => enum.dbName },
     { string => Language.findByString(string).getOrElse(Language.NoLanguage) }
   )
 

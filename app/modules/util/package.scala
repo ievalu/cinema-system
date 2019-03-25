@@ -9,6 +9,7 @@ import modules.util.Language.LanguageVal
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import play.api.mvc.QueryStringBindable
+import scala.language.implicitConversions
 
 import scala.util.{Failure, Success, Try}
 
@@ -22,7 +23,7 @@ package object util {
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Country not found by value:'$value'"))))
     }
-    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> Country.getCountry(value))
+    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> value.dbName)
   }
 
   def NationalityFormatter: Formatter[CountryVal] = new Formatter[CountryVal] {
@@ -33,7 +34,7 @@ package object util {
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Nationality not found by value:'$value'"))))
     }
-    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> Country.getNationality(value))
+    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> value.nationality)
   }
 
   object Country extends Enumeration {
@@ -47,6 +48,8 @@ package object util {
     val Lithuania = CountryVal("97", "Lithuania", "Lithuanian")
     val NoCountry = CountryVal("", "No Country", "No nationality")
 
+    implicit def valueToCountryVal(x: Value): CountryVal = x.asInstanceOf[CountryVal]
+
     def findByString(value: String): Option[CountryVal] = {
       Option(
         value match {
@@ -59,28 +62,6 @@ package object util {
         }
       )
     }
-
-    def getCountry(countryVal: CountryVal): String = countryVal match {
-      case USA => USA.dbName
-      case Australia => Australia.dbName
-      case NewZealand => NewZealand.dbName
-      case Spain => Spain.dbName
-      case Sweden => Sweden.dbName
-      case Lithuania => Lithuania.dbName
-      case _ => "No such country"
-    }
-
-    def getNationality(nationalityVal: CountryVal): String = nationalityVal match {
-      case USA => USA.nationality
-      case Australia => Australia.nationality
-      case NewZealand => NewZealand.nationality
-      case Spain => Spain.nationality
-      case Sweden => Sweden.nationality
-      case Lithuania => Lithuania.nationality
-      case _ => "No such nationality"
-    }
-
-    def getCountryValues = Seq(USA, Australia, NewZealand, Spain, Sweden, Lithuania)
 
     implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
       new QueryStringBindable[CountryVal] {
@@ -112,7 +93,7 @@ package object util {
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Gender not found by value:'$value'"))))
     }
-    def unbind(key: String, value: GenderVal): Map[String, String] = Map(key -> Gender.getName(value))
+    def unbind(key: String, value: GenderVal): Map[String, String] = Map(key -> value.dbName)
   }
 
   object Gender extends Enumeration {
@@ -122,20 +103,14 @@ package object util {
     val Male = GenderVal("m", "Male")
     val Other = GenderVal("", "Other")
 
+    implicit def valueToCountryVal(x: Value): GenderVal = x.asInstanceOf[GenderVal]
+
     def findByString(value: String) = Option(
       value match {
         case "f" => Female
         case "m" => Male
       }
     )
-
-    def getName(genderVal: GenderVal) = genderVal match {
-      case Female => Female.dbName
-      case Male => Male.dbName
-      case _ => "Other"
-    }
-
-    def getGenderValues = Seq(Female, Male)
 
     implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
       new QueryStringBindable[GenderVal] {
@@ -166,7 +141,7 @@ package object util {
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Language not found by value:'$value'"))))
     }
-    def unbind(key: String, value: LanguageVal): Map[String, String] = Map(key -> Language.getName(value))
+    def unbind(key: String, value: LanguageVal): Map[String, String] = Map(key -> value.dbName)
   }
 
   object Language extends Enumeration {
@@ -178,6 +153,8 @@ package object util {
     val lithuanian = LanguageVal("lt", "Lithuanian")
     val NoLanguage = LanguageVal("", "No language")
 
+    implicit def valueToCountryVal(x: Value): LanguageVal = x.asInstanceOf[LanguageVal]
+
     def findByString(value: String): Option[LanguageVal] = {
       Option(
         value match {
@@ -188,17 +165,6 @@ package object util {
         }
       )
     }
-
-    def getName(languageVal: LanguageVal): String =
-      languageVal match {
-        case this.english => english.dbName
-        case this.swedish => swedish.dbName
-        case this.russian => russian.dbName
-        case this.lithuanian => lithuanian.dbName
-        case _ => "No such language"
-      }
-
-    def getLanguageValues = Seq(english, swedish, russian, lithuanian)
 
     implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
       new QueryStringBindable[LanguageVal] {

@@ -12,12 +12,12 @@ trait DirectorTableComponent { self: HasDatabaseConfig[ExtendedPostgresProfile] 
   import profile.api._
 
   implicit val nationalityColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
-    { enum => Country.getCountry(enum) },
+    { enum => enum.dbName },
     { string => Country.findByString(string).getOrElse(Country.NoCountry) }
   )
 
   implicit val genderColumnType: BaseColumnType[GenderVal] = MappedColumnType.base[GenderVal, String](
-    { enum => Gender.getName(enum) },
+    { enum => enum.dbName },
     { string => Gender.findByString(string).getOrElse(Gender.Other) }
   )
 

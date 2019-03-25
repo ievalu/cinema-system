@@ -24,7 +24,7 @@
             )
             @select(
                 actorForm("nationality"),
-                Country.getCountryValues.map(nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)).toSeq,
+                Country.values.map(nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)).toSeq,
                 '_label -> "Nationality"
             )
             @inputText(
@@ -34,7 +34,7 @@
             )
             @select(
                 actorForm("gender"),
-                Gender.getGenderValues.map(genderVal => (genderVal.dbName, genderVal.actualName)).toSeq,
+                Gender.values.map(genderVal => (genderVal.dbName, genderVal.actualName)).toSeq,
                 '_label -> "Gender"
             )
 

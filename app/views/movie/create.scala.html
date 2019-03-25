@@ -23,12 +23,12 @@
         )
         @select(
             movieForm("country"),
-            Country.getCountryValues.map(countryVal => (countryVal.dbName, countryVal.countryName)).toSeq,
+            Country.values.map(countryVal => (countryVal.dbName, countryVal.countryName)).toSeq,
             '_label -> "Country"
         )
         @select(
             movieForm("language"),
-            Language.getLanguageValues.map(languageVal => (languageVal.dbName, languageVal.actualName)).toSeq,
+            Language.values.map(languageVal => (languageVal.dbName, languageVal.actualName)).toSeq,
             '_label -> "Language"
         )
 
