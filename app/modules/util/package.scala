@@ -9,8 +9,8 @@ import modules.util.Language.LanguageVal
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import play.api.mvc.QueryStringBindable
-import scala.language.implicitConversions
 
+import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 package object util {
@@ -40,12 +40,13 @@ package object util {
   object Country extends Enumeration {
     sealed case class CountryVal private[Country](dbName: String, countryName: String, nationality: String) extends Val(dbName)
 
-    val USA = CountryVal("40", "USA", "American")
-    val Australia = CountryVal("2", "Australia", "Australian")
-    val NewZealand = CountryVal("23", "New Zealand", "Kiwi")
-    val Spain = CountryVal("32", "Spain", "Spanish")
-    val Sweden = CountryVal("34", "Sweden", "Swedish")
-    val Lithuania = CountryVal("97", "Lithuania", "Lithuanian")
+    val USA = CountryVal("US", "USA", "American")
+    val Australia = CountryVal("AU", "Australia", "Australian")
+    val NewZealand = CountryVal("NZ", "New Zealand", "Kiwi")
+    val Spain = CountryVal("ES", "Spain", "Spanish")
+    val Sweden = CountryVal("SE", "Sweden", "Swedish")
+    val Lithuania = CountryVal("LT", "Lithuania", "Lithuanian")
+    val Italy = CountryVal("IT", "Italy", "Italian")
     val NoCountry = CountryVal("", "No Country", "No nationality")
 
     implicit def valueToCountryVal(x: Value): CountryVal = x.asInstanceOf[CountryVal]
@@ -53,12 +54,14 @@ package object util {
     def findByString(value: String): Option[CountryVal] = {
       Option(
         value match {
-          case "40" => USA
-          case "2" => Australia
-          case "23" => NewZealand
-          case "32" => Spain
-          case "34" => Sweden
-          case "97" => Lithuania
+          case "US" => USA
+          case "AU" => Australia
+          case "NZ" => NewZealand
+          case "ES" => Spain
+          case "SE" => Sweden
+          case "LT" => Lithuania
+          case "IT" => Italy
+          case _ => NoCountry
         }
       )
     }
@@ -109,6 +112,7 @@ package object util {
       value match {
         case "f" => Female
         case "m" => Male
+        case _ => Other
       }
     )
 
@@ -162,6 +166,7 @@ package object util {
           case "sw" => swedish
           case "ru" => russian
           case "lt" => lithuanian
+          case _ => NoLanguage
         }
       )
     }
