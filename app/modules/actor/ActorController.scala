@@ -42,11 +42,13 @@ class ActorController @Inject() (
       name: String,
       birthDate: String,
       heightMin: Int,
-      heightMax: Int
+      heightMax: Int,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
     repo
-      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), heightMin, heightMax)
-      .map(actors => Ok(html.actor.list(actors, filterActorForm.fill(FilterActorForm(name, parseDate(birthDate), heightMin, heightMax)))))
+      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), heightMin, heightMax, orderBy, order)
+      .map(actors => Ok(html.actor.list(actors, filterActorForm.fill(FilterActorForm(name, parseDate(birthDate), heightMin, heightMax)), SortItems(orderBy, order))))
   }
 
   def createActor: Action[AnyContent] = Action {

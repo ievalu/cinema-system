@@ -7,6 +7,7 @@ import modules.util.Page
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import slick.lifted.ColumnOrdered
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,6 +51,22 @@ class ActorRepository @Inject() (
     dateFilteredQuery
   }
 
+  def sortLogic(
+      actorTable: ActorTable, //Query[ActorRepository.this.ActorTable, ActorRepository.this.ActorTable#TableElementType, Seq],
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
+  ) = {
+    (orderBy, order) match {
+      case (SortableField.name, SortOrder.asc) => actorTable.firstName.toLowerCase.asc
+      case (SortableField.name, SortOrder.desc) => actorTable.firstName.toLowerCase.desc
+      case (SortableField.birthDate, SortOrder.asc) => actorTable.birthDate.asc
+      case (SortableField.birthDate, SortOrder.desc) => actorTable.birthDate.desc
+      case (SortableField.height, SortOrder.asc) => actorTable.height.asc
+      case (SortableField.height, SortOrder.desc) => actorTable.height.desc
+      case _ => actorTable.id.asc
+    }
+  }
+
   def count(
       name: String = "%",
       birthDate: Option[Date],
@@ -63,14 +80,17 @@ class ActorRepository @Inject() (
       name: String = "%",
       birthDate: Option[Date],
       heightMin: Int,
-      heightMax: Int
+      heightMax: Int,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
   ): Future[Page[Actor]] = {
     val offset = (page - 1) * pageSize
     val filteredQuery = filterLogic(name, birthDate, heightMin, heightMax)
+    val sortedQuery = filteredQuery.sortBy{ a => sortLogic(a, orderBy, order) }
     for {
       totalRows <- count(name, birthDate, heightMin, heightMax)
       actorList <- db.run(
-        filteredQuery
+        sortedQuery
           .drop(offset)
           .take(pageSize)
           .result

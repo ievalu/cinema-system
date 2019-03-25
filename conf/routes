@@ -20,7 +20,7 @@ GET     /directors/:id/edit         modules.director.DirectorController.edit(id:
 POST    /directors/:id/edit         modules.director.DirectorController.update(id: Long)
 
 # Actors
-GET     /actors                     modules.actor.ActorController.list(page: Int ?= 1, pageSize: Int ?= 8, name: String ?= "", birthDate ?= "", heightMin: Int ?= 0, heightMax: Int ?= 300)
+GET     /actors                     modules.actor.ActorController.list(page: Int ?= 1, pageSize: Int ?= 8, name: String ?= "", birthDate ?= "", heightMin: Int ?= 0, heightMax: Int ?= 300, orderBy: modules.actor.SortableField.Value ?= modules.actor.SortableField.name, order: modules.actor.SortOrder.Value ?= modules.actor.SortOrder.asc)
 GET     /actors/new                 modules.actor.ActorController.createActor
 POST    /actors                     modules.actor.ActorController.saveNewActor
 DELETE  /actors/:id                 modules.actor.ActorController.delete(id: Long)

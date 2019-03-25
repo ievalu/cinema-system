@@ -1,12 +1,25 @@
-@import modules.actor.Actor
+@import modules.actor.{Actor, SortableField, SortOrder, SortItems}
 @import modules.util.Page
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
 @import modules.actor.{FilterActorForm}
-@(actors: Page[Actor], filterForm: Form[FilterActorForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(actors: Page[Actor], filterForm: Form[FilterActorForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @paginate(page: Int) = @{
     modules.actor.routes.ActorController.list(page)
+}
+
+@linkToList(newOrderBy: SortableField.Value) = @{
+    modules.actor.routes.ActorController.list(
+        1,
+        8,
+        filterForm("name").value.get,
+        filterForm("birthDate").value.getOrElse(""),
+        filterForm("heightMin").value.get.toInt,
+        filterForm("heightMax").value.get.toInt,
+        newOrderBy,
+        if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+    )
 }
 
 @main("Actors") {
@@ -22,10 +35,10 @@
         <table class="ui celled table" style="table-layout: fixed">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Birth date</th>
+                    <th><a class="header" href="@linkToList(SortableField.name)">Name</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.birthDate)">Birth date</a></th>
                     <th>Nationality</th>
-                    <th>Height</th>
+                    <th><a class="header" href="@linkToList(SortableField.height)">Height</a></th>
                     <th>Gender</th>
                     <th style="width: 70px"></th>
                 </tr>
