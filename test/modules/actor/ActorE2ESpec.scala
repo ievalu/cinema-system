@@ -1,9 +1,9 @@
-package modules.movie
+package modules.actor
 
 import java.time.LocalDate
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
-import modules.util.{Country, Language}
+import modules.util.{Country, Gender}
 import org.scalatest.{OptionValues, TestData}
 import org.scalatest.concurrent.{Eventually, IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.{HtmlUnitFactory, OneBrowserPerTest, PlaySpec}
@@ -12,7 +12,7 @@ import play.api.Application
 import utility.application.TestApplications.basicDatabaseTestApplication
 import utility.database.PlayPostgreSQLTest
 
-class MovieE2ESpec extends PlaySpec
+class ActorE2ESpec extends PlaySpec
   with GuiceOneServerPerTest
   with OneBrowserPerTest
   with HtmlUnitFactory
@@ -28,48 +28,50 @@ class MovieE2ESpec extends PlaySpec
     basicDatabaseTestApplication(container)
   }
 
-  "Movie form" must {
-
-    "create movie" in {
+  "Actor form" must {
+    "create actor" in {
       {
-        val url = s"http://localhost:$port${modules.movie.routes.MovieController.createMovie().url}"
+        val url = s"http://localhost:$port${modules.actor.routes.ActorController.createActor().url}"
         go to url
       }
 
       eventually {
-        pageTitle mustBe "Create movie"
+        pageTitle mustBe "Add actor"
       }
 
-      click on name("title")
-      textField("title").value = "Movie title"
+      click on name("firstName")
+      textField("firstName").value = "First name"
 
-      click on name("description")
-      textField("description").value = "Movie description"
+      click on name("lastName")
+      textField("lastName").value = "Last name"
 
-      executeScript("document.getElementById('releaseDate').value = '1996-09-26'")
+      executeScript("document.getElementById('birthDate').value = '1996-09-26'")
 
-      click on name("country")
-      singleSel("country").value = "SE"
+      click on name("nationality")
+      singleSel("nationality").value = "IT"
 
-      click on name("language")
-      singleSel("language").value = "lt"
+      click on name("height")
+      numberField("height").value = "150"
+
+      click on name("gender")
+      singleSel("gender").value = "f"
 
       click on id("create-submit")
-      // submit()
 
-      val repo = app.injector.instanceOf[MovieRepository]
+      val repo = app.injector.instanceOf[ActorRepository]
       eventually {
-        val movie = repo.findById(6).futureValue
-        movie mustEqual Some(Movie(
-          6,
-          "Movie title",
-          "Movie description",
+        val actor = repo.findById(4).futureValue
+        actor mustEqual Some(Actor(
+          4,
+          "First name",
+          "Last name",
           java.sql.Date.valueOf(LocalDate.of(1996, 9, 26)),
-          Country.Sweden,
-          Language.lithuanian
-        )
-        )
+          Country.Italy,
+          150,
+          Gender.Female
+        ))
       }
     }
   }
+
 }
