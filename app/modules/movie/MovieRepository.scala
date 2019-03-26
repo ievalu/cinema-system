@@ -32,22 +32,18 @@ class MovieRepository @Inject()(
     val firstQuery = movies
       .filter(movie => movie.title.toLowerCase like title.toLowerCase)
       .filter(movie => movie.description.toLowerCase like description.toLowerCase)
-    val test1 = db.run(firstQuery.result)
     val dateFilteredQuery = releaseDate match {
       case Some(date) => firstQuery.filter(movie => movie.releaseDate === date)
       case None => firstQuery
     }
-    val test2 = db.run(dateFilteredQuery.result)
     val countryFilteredQuery = country match {
       case Country.NoCountry => dateFilteredQuery
       case _ => dateFilteredQuery.filter(movie => movie.country === country)
     }
-    val test3 = db.run(countryFilteredQuery.result)
     val languageFilteredQuery = language match {
       case Language.NoLanguage => countryFilteredQuery
       case _ => countryFilteredQuery.filter(movie => movie.language === language)
     }
-    val test4 = db.run(languageFilteredQuery.result)
     languageFilteredQuery
   }
 
