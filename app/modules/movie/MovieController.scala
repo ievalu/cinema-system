@@ -47,7 +47,9 @@ class MovieController @Inject()(
       description: String = "%",
       releaseDate: String,
       country: CountryVal,
-      language: LanguageVal
+      language: LanguageVal,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
     repo.list(
       page,
@@ -56,12 +58,18 @@ class MovieController @Inject()(
       "%" + description + "%",
       parseDate(releaseDate),
       country,
-      language
+      language,
+      orderBy,
+      order
     )
       .map(movies =>
         Ok(html.movie.list(
-          movies, filterMovieForm.fill(FilterMovieForm(title, description, parseDate(releaseDate), country, language)))
-        )
+          movies,
+          filterMovieForm.fill(
+            FilterMovieForm(title, description, parseDate(releaseDate), country, language)
+          ),
+          SortItems(orderBy, order)
+        ))
       )
   }
 

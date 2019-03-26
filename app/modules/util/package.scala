@@ -212,4 +212,33 @@ package object util {
       Some(new Date(parsed.getTime))
     }
   }
+
+  object SortOrder extends Enumeration {
+    type Order = Value
+    val asc = Value("asc")
+    val desc = Value("desc")
+
+    implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
+      new QueryStringBindable[Order] {
+
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Order]] = {
+          stringBinder.bind(key, params)
+            .map {
+              case Right(s) =>
+                Try(SortOrder.withName(s)) match {
+                  case Success(sortOrder) =>
+                    Right(sortOrder)
+                  case Failure(_) =>
+                    Left(s"Failed to parse sort order from '$s'")
+                }
+              case Left(baseBinderFailure) =>
+                Left(baseBinderFailure)
+            }
+        }
+
+        override def unbind(key: String, sortOrder: Order): String = {
+          stringBinder.unbind(key, sortOrder.toString)
+        }
+      }
+  }
 }

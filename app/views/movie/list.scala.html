@@ -1,13 +1,27 @@
-@import modules.movie.Movie
-@import modules.util.Page
+@import modules.movie.{Movie, SortableField, SortItems}
+@import modules.util.{Page, SortOrder}
 @import modules.util.{Country, Language}
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
 @import modules.movie.{FilterMovieForm}
-@(movies: Page[Movie], filterForm: Form[FilterMovieForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(movies: Page[Movie], filterForm: Form[FilterMovieForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @paginate(page: Int) = @{
     modules.movie.routes.MovieController.list(page)
+}
+
+@linkToList(newOrderBy: SortableField.Value) = @{
+    modules.movie.routes.MovieController.list(
+        1,
+        8,
+        filterForm("title").value.get,
+        filterForm("description").value.get,
+        filterForm("releaseDate").value.getOrElse(""),
+        Country.findByString(filterForm("country").value.get).get,
+        Language.findByString(filterForm("language").value.get).get,
+        newOrderBy,
+        if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+    )
 }
 
 @main("Movies") {
@@ -23,11 +37,11 @@
         <table class="ui celled table" style="table-layout: fixed">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Release date</th>
-                    <th>Country</th>
-                    <th>Language</th>
+                    <th><a class="header" href="@linkToList(SortableField.title)">Title</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.description)">Description</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.releaseDate)">Release date</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.country)">Country</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.language)">Language</a></th>
                     <th style="width: 70px"></th>
                 </tr>
             </thead>
@@ -68,12 +82,12 @@
                         )
                     </td>
                     <td>
-                        <a
+                        <button
                                 style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                href="@modules.movie.routes.MovieController.list()"
-                        >
+                                type="button"
+                                onclick="location.href='@modules.movie.routes.MovieController.list()'">
                             <i class="undo icon"></i>
-                        </a>
+                        </button>
                     </td>
                 </tr>
                 @Option(movies.items).filter(_.nonEmpty).map { movies =>

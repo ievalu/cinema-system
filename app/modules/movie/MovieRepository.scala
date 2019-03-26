@@ -5,7 +5,7 @@ import java.sql.Date
 import javax.inject.{Inject, Singleton}
 import modules.util.Country.CountryVal
 import modules.util.Language.LanguageVal
-import modules.util.{Country, Language, Page}
+import modules.util.{Country, Language, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -51,6 +51,26 @@ class MovieRepository @Inject()(
     languageFilteredQuery
   }
 
+  def sortLogic(
+      movieTable: MovieTable,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
+  ) = {
+    (orderBy, order) match {
+      case (SortableField.title, SortOrder.asc) => movieTable.title.toLowerCase.asc
+      case (SortableField.title, SortOrder.desc) => movieTable.title.toLowerCase.desc
+      case (SortableField.description, SortOrder.asc) => movieTable.description.toLowerCase.asc
+      case (SortableField.description, SortOrder.desc) => movieTable.description.toLowerCase.desc
+      case (SortableField.releaseDate, SortOrder.asc) => movieTable.releaseDate.asc
+      case (SortableField.releaseDate, SortOrder.desc) => movieTable.releaseDate.desc
+      case (SortableField.country, SortOrder.asc) => movieTable.country.asc
+      case (SortableField.country, SortOrder.desc) => movieTable.country.desc
+      case (SortableField.language, SortOrder.asc) => movieTable.language.asc
+      case (SortableField.language, SortOrder.desc) => movieTable.language.desc
+      case _ => movieTable.id.asc
+    }
+  }
+
   def count(
       title: String = "%",
       description: String = "%",
@@ -66,14 +86,17 @@ class MovieRepository @Inject()(
       description: String = "%",
       releaseDate: Option[Date],
       country: CountryVal,
-      language: LanguageVal
+      language: LanguageVal,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
   ): Future[Page[Movie]] = {
     val offset = (page - 1) * pageSize
     val filteredQuery = filterLogic(title, description, releaseDate, country, language)
+    val sortedQuery = filteredQuery.sortBy{ m => sortLogic(m, orderBy, order) }
     for {
       totalRows <- count(title, description, releaseDate, country, language)
       movieList <- db.run {
-        filteredQuery
+        sortedQuery
           .drop(offset)
           .take(pageSize)
           .result
