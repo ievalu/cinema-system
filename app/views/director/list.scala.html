@@ -1,12 +1,27 @@
-@import modules.director.Director
-@import modules.util.Page
+@import modules.director.{Director, SortItems, SortableField}
+@import modules.util._
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
 @import modules.director.{FilterDirectorForm}
-@(directors: Page[Director], filterForm: Form[FilterDirectorForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(directors: Page[Director], filterForm: Form[FilterDirectorForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @paginate(page: Int) = @{
     modules.director.routes.DirectorController.list(page)
+}
+
+@linkToList(newOrderBy: SortableField.Value) = @{
+    modules.director.routes.DirectorController.list(
+        1,
+        8,
+        filterForm("name").value.get,
+        filterForm("birthDate").value.getOrElse(""),
+        Country.findByString(filterForm("nationality").value.get).get,
+        filterForm("heightMin").value.get.toInt,
+        filterForm("heightMax").value.get.toInt,
+        Gender.findByString(filterForm("gender").value.get).get,
+        newOrderBy,
+        if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+    )
 }
 
 @main("Directors") {
@@ -22,10 +37,10 @@
         <table class="ui celled table" style="table-layout: fixed">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Birth date</th>
-                    <th>Nationality</th>
-                    <th>Height</th>
+                    <th><a class="header" href="@linkToList(SortableField.name)">Name</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.birthDate)">Birth date</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.nationality)">Nationality</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.height)">Height</a></th>
                     <th>Gender</th>
                     <th style="width: 70px"></th>
                 </tr>
@@ -45,7 +60,14 @@
                             '_label -> ""
                         )
                     </td>
-                    <td></td>
+                    <td>
+                        @select(
+                            filterForm("nationality"),
+                            Country.values.toSeq.sortBy(_.nationality).map{nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
                     <td>
                         @inputText(
                             filterForm("heightMin"),
@@ -58,8 +80,22 @@
                             'type -> "number"
                         )
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td>
+                        @select(
+                            filterForm("gender"),
+                            Gender.values.toSeq.sortBy(_.actualName).map{genderVal => (genderVal.dbName, genderVal.actualName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        <button
+                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                type="button"
+                                onclick="location.href='@modules.director.routes.DirectorController.list()'">
+                            <i class="undo icon"></i>
+                        </button>
+                    </td>
                 </tr>
                 @Option(directors.items).filter(_.nonEmpty).map { directors =>
                     @directors.map { director =>

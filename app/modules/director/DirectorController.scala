@@ -1,6 +1,8 @@
 package modules.director
 
 import javax.inject.Inject
+import modules.util.Country.CountryVal
+import modules.util.Gender.GenderVal
 import modules.util.{GenderFormatter, NationalityFormatter}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -31,8 +33,10 @@ class DirectorController @Inject() (
     mapping(
       "name" -> nonEmptyText,
       "birthDate" -> optional(sqlDate),
+      "nationality" -> of(NationalityFormatter),
       "heightMin" -> number.verifying(min(0), max(300)),
-      "heightMax" -> number.verifying(min(0), max(300))
+      "heightMax" -> number.verifying(min(0), max(300)),
+      "gender" -> of(GenderFormatter)
     )(FilterDirectorForm.apply)(FilterDirectorForm.unapply)
   }
 
@@ -41,14 +45,24 @@ class DirectorController @Inject() (
       pageSize: Int,
       name: String,
       birthDate: String,
+      nationality: CountryVal,
       heightMin: Int,
-      heightMax: Int
+      heightMax: Int,
+      gender: GenderVal,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
     repo
-      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), heightMin, heightMax)
+      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), nationality, heightMin, heightMax, gender, orderBy, order)
       .map(
         directors =>
-          Ok(html.director.list(directors, filterDirectorForm.fill(FilterDirectorForm(name, parseDate(birthDate), heightMin, heightMax))))
+          Ok(
+            html.director.list(
+              directors,
+              filterDirectorForm.fill(FilterDirectorForm(name, parseDate(birthDate), nationality, heightMin, heightMax, gender)),
+              SortItems(orderBy, order)
+            )
+          )
       )
   }
 

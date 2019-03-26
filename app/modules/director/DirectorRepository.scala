@@ -3,7 +3,9 @@ package modules.director
 import java.sql.Date
 
 import javax.inject.{Inject, Singleton}
-import modules.util.Page
+import modules.util.Country.CountryVal
+import modules.util.Gender.GenderVal
+import modules.util.{Country, Gender, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -23,8 +25,10 @@ class DirectorRepository @Inject() (
   def filterLogic(
       name: String = "%",
       birthDate: Option[Date],
+      nationality: CountryVal,
       heightMin: Int,
-      heightMax: Int
+      heightMax: Int,
+      gender: GenderVal
   ) = {
     val nameArr = name.toLowerCase.split(" ")
     val firstQuery = directors
@@ -47,30 +51,63 @@ class DirectorRepository @Inject() (
       case Some(date) => firstQuery.filter(director => director.birthDate === date)
       case None => firstQuery
     }
-    dateFilteredQuery
+    val nationalityFilteredQuery = nationality match {
+      case Country.NoCountry => dateFilteredQuery
+      case _ => dateFilteredQuery.filter(director => director.nationality === nationality)
+    }
+    val genderFilteredQuery = gender match {
+      case Gender.Other => nationalityFilteredQuery
+      case _ => nationalityFilteredQuery.filter(director => director.gender === gender)
+    }
+    genderFilteredQuery
+  }
+
+  def sortLogic(
+      directorTable: DirectorTable,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
+  ) = {
+    (orderBy, order) match {
+      case (SortableField.name, SortOrder.asc) => directorTable.firstName.toLowerCase.asc
+      case (SortableField.name, SortOrder.desc) => directorTable.firstName.toLowerCase.desc
+      case (SortableField.birthDate, SortOrder.asc) => directorTable.birthDate.asc
+      case (SortableField.birthDate, SortOrder.desc) => directorTable.birthDate.desc
+      case (SortableField.nationality, SortOrder.asc) => directorTable.nationality.asc
+      case (SortableField.nationality, SortOrder.desc) => directorTable.nationality.desc
+      case (SortableField.height, SortOrder.asc) => directorTable.height.asc
+      case (SortableField.height, SortOrder.desc) => directorTable.height.desc
+      case _ => directorTable.id.asc
+    }
   }
 
   def count(
       name: String = "%",
       birthDate: Option[Date],
+      nationality: CountryVal,
       heightMin: Int,
-      heightMax: Int
-  ): Future[Int] = db.run(filterLogic(name, birthDate, heightMin, heightMax).length.result)
+      heightMax: Int,
+      gender: GenderVal
+  ): Future[Int] = db.run(filterLogic(name, birthDate, nationality, heightMin, heightMax, gender).length.result)
 
   def list(
       page: Int = 1,
       pageSize: Int = 8,
       name: String = "%",
       birthDate: Option[Date],
+      nationality: CountryVal,
       heightMin: Int,
-      heightMax: Int
+      heightMax: Int,
+      gender: GenderVal,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
   ): Future[Page[Director]] = {
     val offset = (page - 1) * pageSize
-    val filteredQuery = filterLogic(name, birthDate, heightMin, heightMax)
+    val filteredQuery = filterLogic(name, birthDate, nationality, heightMin, heightMax, gender)
+    val sortedQuery = filteredQuery.sortBy{ d => sortLogic(d, orderBy, order) }
     for {
-      totalRows <- count(name, birthDate, heightMin, heightMax)
+      totalRows <- count(name, birthDate, nationality, heightMin, heightMax, gender)
       directorList <- db.run(
-        filteredQuery
+        sortedQuery
           .drop(offset)
           .take(pageSize)
           .result
