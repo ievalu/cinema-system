@@ -1,12 +1,22 @@
-@import modules.genre.Genre
-@import modules.util.Page
+@import modules.genre.{Genre, SortableField, SortItems}
+@import modules.util._
 @import modules.genre.{CreateGenreForm}
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
-@(genres: Page[Genre], filterForm: Form[CreateGenreForm])(implicit request: MessagesRequestHeader, flash: Flash)
+@(genres: Page[Genre], filterForm: Form[CreateGenreForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @paginate(page: Int) = @{
     modules.genre.routes.GenreController.list(page)
+}
+
+@linkToList(newOrderBy: SortableField.Value) = @{
+    modules.genre.routes.GenreController.list(
+        1,
+        8,
+        filterForm("title").value.get,
+        newOrderBy,
+        if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+    )
 }
 
 @main("Genres") {
@@ -22,7 +32,7 @@
         <table class="ui celled table" style="table-layout: fixed">
             <thead>
                 <tr>
-                    <th>Title</th>
+                    <th><a class="header" href="@linkToList(SortableField.title)">Title</a></th>
                     <th style="width: 70px"></th>
                 </tr>
             </thead>
@@ -34,7 +44,14 @@
                             '_label -> ""
                         )
                     </td>
-                    <td></td>
+                    <td>
+                        <button
+                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                type="button"
+                                onclick="location.href='@modules.genre.routes.GenreController.list()'">
+                            <i class="undo icon"></i>
+                        </button>
+                    </td>
                 </tr>
                 @Option(genres.items).filter(_.nonEmpty).map { genres =>
                     @genres.map { genre =>

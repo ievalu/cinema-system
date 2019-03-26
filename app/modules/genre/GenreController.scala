@@ -1,6 +1,7 @@
 package modules.genre
 
 import javax.inject.Inject
+import modules.util.SortOrder
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.{Action, AnyContent, MessagesAbstractController, MessagesControllerComponents}
@@ -20,11 +21,15 @@ class GenreController @Inject() (
   )
 
   def list(
-      page: Int, pageSize: Int, title: String
+      page: Int,
+      pageSize: Int,
+      title: String,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
     repo
-      .list(page, pageSize, "%" + title + "%")
-      .map(genres => Ok(html.genre.list(genres, createGenreForm.fill(CreateGenreForm(title)))))
+      .list(page, pageSize, "%" + title + "%", orderBy, order)
+      .map(genres => Ok(html.genre.list(genres, createGenreForm.fill(CreateGenreForm(title)), SortItems(orderBy, order))))
   }
 
   def createGenre: Action[AnyContent] = Action {

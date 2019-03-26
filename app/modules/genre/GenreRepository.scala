@@ -1,7 +1,7 @@
 package modules.genre
 
 import javax.inject.{Inject, Singleton}
-import modules.util.Page
+import modules.util.{Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -20,15 +20,34 @@ class GenreRepository @Inject() (
 
   def filterLogic(title: String) = genres.filter(genre => genre.title like title)
 
+  def sortLogic(
+      genreTable: GenreTable,
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
+  ) = {
+    (orderBy, order) match {
+      case (SortableField.title, SortOrder.asc) => genreTable.title.toLowerCase.asc
+      case (SortableField.title, SortOrder.desc) => genreTable.title.toLowerCase.desc
+      case _ => genreTable.id.asc
+    }
+  }
+
   def count(title: String): Future[Int] = db.run(filterLogic(title).length.result)
 
-  def list(page: Int = 1, pageSize: Int = 8, title: String = "%"): Future[Page[Genre]] = {
+  def list(
+      page: Int = 1,
+      pageSize: Int = 8,
+      title: String = "%",
+      orderBy: SortableField.Value,
+      order: SortOrder.Value
+  ): Future[Page[Genre]] = {
     val offset = (page - 1) * pageSize
     val filteredQuery = filterLogic(title)
+    val sortedQuery = filteredQuery.sortBy{ g => sortLogic(g, orderBy, order) }
     for {
       totalRows <- count(title)
       genreList <- db.run(
-        filteredQuery
+        sortedQuery
           .drop(offset)
           .take(pageSize)
           .result
