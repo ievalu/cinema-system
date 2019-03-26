@@ -1,6 +1,8 @@
 package modules.movie
 
 import javax.inject._
+import modules.util.Country.CountryVal
+import modules.util.Language.LanguageVal
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
@@ -28,7 +30,9 @@ class MovieController @Inject()(
     mapping(
       "title" -> nonEmptyText,
       "description" -> nonEmptyText,
-      "releaseDate" -> optional(sqlDate)
+      "releaseDate" -> optional(sqlDate),
+      "country" -> of(CountryFormatter),
+      "language" -> of(LanguageFormatter)
     )(FilterMovieForm.apply)(FilterMovieForm.unapply)
   }
 
@@ -41,18 +45,22 @@ class MovieController @Inject()(
       pageSize: Int,
       title: String = "%",
       description: String = "%",
-      releaseDate: String
+      releaseDate: String,
+      country: CountryVal,
+      language: LanguageVal
   ): Action[AnyContent] = Action.async { implicit request =>
     repo.list(
       page,
       pageSize,
       "%" + title + "%",
       "%" + description + "%",
-      parseDate(releaseDate)
+      parseDate(releaseDate),
+      country,
+      language
     )
       .map(movies =>
         Ok(html.movie.list(
-          movies, filterMovieForm.fill(FilterMovieForm(title, description, parseDate(releaseDate))))
+          movies, filterMovieForm.fill(FilterMovieForm(title, description, parseDate(releaseDate), country, language)))
         )
       )
   }

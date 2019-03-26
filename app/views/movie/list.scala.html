@@ -1,5 +1,6 @@
 @import modules.movie.Movie
 @import modules.util.Page
+@import modules.util.{Country, Language}
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
 @import modules.movie.{FilterMovieForm}
@@ -50,9 +51,30 @@
                             '_label -> ""
                         )
                     </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>
+                        @select(
+                            filterForm("country"),
+                            Country.values.toSeq.sortBy(_.countryName).map{countryVal => (countryVal.dbName, countryVal.countryName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @select(
+                            filterForm("language"),
+                            Language.values.toSeq.sortBy(_.actualName).map{languageVal => (languageVal.dbName, languageVal.actualName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        <a
+                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                href="@modules.movie.routes.MovieController.list()"
+                        >
+                            <i class="undo icon"></i>
+                        </a>
+                    </td>
                 </tr>
                 @Option(movies.items).filter(_.nonEmpty).map { movies =>
                     @movies.map { movie =>

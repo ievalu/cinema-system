@@ -4,7 +4,7 @@
 
 # Movies
 GET     /                           modules.movie.MovieController.index
-GET     /movies                     modules.movie.MovieController.list(page: Int ?= 1, pageSize: Int ?= 8, title: String ?= "", description: String ?= "", releaseDate ?= "")
+GET     /movies                     modules.movie.MovieController.list(page: Int ?= 1, pageSize: Int ?= 8, title: String ?= "", description: String ?= "", releaseDate ?= "", country: modules.util.Country.CountryVal ?= modules.util.Country.NoCountry, language: modules.util.Language.LanguageVal ?= modules.util.Language.NoLanguage)
 GET     /movies/new                 modules.movie.MovieController.createMovie
 POST    /movies                     modules.movie.MovieController.saveNewMovie
 DELETE  /movies/:id                 modules.movie.MovieController.delete(id: Long)

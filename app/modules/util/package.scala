@@ -47,7 +47,10 @@ package object util {
     val Sweden = CountryVal("SE", "Sweden", "Swedish")
     val Lithuania = CountryVal("LT", "Lithuania", "Lithuanian")
     val Italy = CountryVal("IT", "Italy", "Italian")
-    val NoCountry = CountryVal("", "No Country", "No nationality")
+    val Afghanistan = CountryVal("AF", "Afghanistan", "Afghan")
+    val Belgium = CountryVal("BE", "Belgium", "Belgian")
+    val Brazil = CountryVal("BR", "Brazil", "Brazilian")
+    val NoCountry = CountryVal("", "", "")
 
     implicit def valueToCountryVal(x: Value): CountryVal = x.asInstanceOf[CountryVal]
 
@@ -61,6 +64,9 @@ package object util {
           case "SE" => Sweden
           case "LT" => Lithuania
           case "IT" => Italy
+          case "AF" => Afghanistan
+          case "BE" => Belgium
+          case "BR" => Brazil
           case _ => NoCountry
         }
       )
@@ -155,7 +161,7 @@ package object util {
     val swedish = LanguageVal("sw", "Swedish")
     val russian = LanguageVal("ru", "Russian")
     val lithuanian = LanguageVal("lt", "Lithuanian")
-    val NoLanguage = LanguageVal("", "No language")
+    val NoLanguage = LanguageVal("", "")
 
     implicit def valueToCountryVal(x: Value): LanguageVal = x.asInstanceOf[LanguageVal]
 

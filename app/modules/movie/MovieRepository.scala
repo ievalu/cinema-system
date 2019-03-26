@@ -3,7 +3,9 @@ package modules.movie
 import java.sql.Date
 
 import javax.inject.{Inject, Singleton}
-import modules.util.{Page}
+import modules.util.Country.CountryVal
+import modules.util.Language.LanguageVal
+import modules.util.{Country, Language, Page}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -23,35 +25,53 @@ class MovieRepository @Inject()(
   def filterLogic(
       title: String = "%",
       description: String = "%",
-      releaseDate: Option[Date]
+      releaseDate: Option[Date],
+      country: CountryVal,
+      language: LanguageVal
   ) = {
     val firstQuery = movies
       .filter(movie => movie.title.toLowerCase like title.toLowerCase)
       .filter(movie => movie.description.toLowerCase like description.toLowerCase)
+    val test1 = db.run(firstQuery.result)
     val dateFilteredQuery = releaseDate match {
       case Some(date) => firstQuery.filter(movie => movie.releaseDate === date)
       case None => firstQuery
     }
-    dateFilteredQuery
+    val test2 = db.run(dateFilteredQuery.result)
+    val countryFilteredQuery = country match {
+      case Country.NoCountry => dateFilteredQuery
+      case _ => dateFilteredQuery.filter(movie => movie.country === country)
+    }
+    val test3 = db.run(countryFilteredQuery.result)
+    val languageFilteredQuery = language match {
+      case Language.NoLanguage => countryFilteredQuery
+      case _ => countryFilteredQuery.filter(movie => movie.language === language)
+    }
+    val test4 = db.run(languageFilteredQuery.result)
+    languageFilteredQuery
   }
 
   def count(
       title: String = "%",
       description: String = "%",
-      releaseDate: Option[Date]
-  ): Future[Int] = db.run(filterLogic(title, description, releaseDate).length.result)
+      releaseDate: Option[Date],
+      country: CountryVal,
+      language: LanguageVal
+  ): Future[Int] = db.run(filterLogic(title, description, releaseDate, country, language).length.result)
 
   def list(
       page: Int = 1,
       pageSize: Int = 8,
       title: String = "%",
       description: String = "%",
-      releaseDate: Option[Date]
+      releaseDate: Option[Date],
+      country: CountryVal,
+      language: LanguageVal
   ): Future[Page[Movie]] = {
     val offset = (page - 1) * pageSize
-    val filteredQuery = filterLogic(title, description, releaseDate)
+    val filteredQuery = filterLogic(title, description, releaseDate, country, language)
     for {
-      totalRows <- count(title, description, releaseDate)
+      totalRows <- count(title, description, releaseDate, country, language)
       movieList <- db.run {
         filteredQuery
           .drop(offset)

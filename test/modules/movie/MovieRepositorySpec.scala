@@ -4,9 +4,9 @@ import java.sql.Date
 import java.time.LocalDate
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
-import modules.util.{Country, Language}
+import modules.util.{Country, Language, Page}
 import org.scalatest.TestData
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.concurrent.{Eventually, IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
@@ -19,6 +19,7 @@ class MovieRepositorySpec extends PlaySpec
   with GuiceOneAppPerTest
   with PlayPostgreSQLTest
   with ScalaFutures
+  with Eventually
   with IntegrationPatience {
 
   override val container: PostgreSQLContainer = PostgreSQLContainer("postgres:alpine")
@@ -99,6 +100,47 @@ class MovieRepositorySpec extends PlaySpec
           java.sql.Date.valueOf(LocalDate.of(2014, 6, 15)),
           Country.Sweden,
           Language.swedish
+        )
+      }
+    }
+
+    "list filtered movies" in {
+      withEvolutions { () =>
+        val repo = app.injector.instanceOf[MovieRepository]
+        val filteredMovies = repo
+          .list(
+            1,
+            8,
+            "%%",
+            "%%",
+            None,
+            Country.Lithuania,
+            Language.NoLanguage
+          )
+          .futureValue
+
+        filteredMovies mustEqual Page(
+          Vector(
+            Movie(
+              2,
+              "Poland is our enemy",
+              "Lithuanians outlook on Poland",
+              java.sql.Date.valueOf(LocalDate.of(1998, 4, 21)),
+              Country.Lithuania,
+              Language.lithuanian
+            ),
+            Movie(
+              5,
+              "Babushki",
+              "No one would like it",
+              java.sql.Date.valueOf(LocalDate.of(2009, 6, 14)),
+              Country.Lithuania,
+              Language.russian
+            )
+          ),
+          1,
+          0,
+          2
         )
       }
     }
