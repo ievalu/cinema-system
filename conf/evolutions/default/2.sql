@@ -1,6 +1,8 @@
 # --- !Ups
 
-truncate "movie", "director", "actor";
+truncate "movie" restart identity;
+truncate "director" restart identity;
+truncate "actor" restart identity;
 
 alter table "movie" alter column "country" type varchar(2);
 alter table "director" alter column "nationality" type varchar(2);
