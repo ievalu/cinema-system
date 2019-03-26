@@ -3,6 +3,7 @@ package modules
 import java.sql.Date
 import java.text.SimpleDateFormat
 
+import modules.util.Country
 import modules.util.Country.CountryVal
 import modules.util.Gender.GenderVal
 import modules.util.Language.LanguageVal
@@ -38,7 +39,7 @@ package object util {
   }
 
   object Country extends Enumeration {
-    sealed case class CountryVal private[Country](dbName: String, countryName: String, nationality: String) extends Val(dbName)
+    sealed case class CountryVal private[Country](dbName: String, countryName: String, nationality: String) extends super.Val
 
     val USA = CountryVal("US", "USA", "American")
     val Australia = CountryVal("AU", "Australia", "Australian")
@@ -71,6 +72,20 @@ package object util {
         }
       )
     }
+
+    def seqValues: Seq[CountryVal] = Seq(
+      USA,
+      Australia,
+      NewZealand,
+      Spain,
+      Sweden,
+      Lithuania,
+      Italy,
+      Afghanistan,
+      Belgium,
+      Brazil,
+      NoCountry
+    )
 
     implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
       new QueryStringBindable[CountryVal] {

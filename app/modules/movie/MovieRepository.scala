@@ -59,8 +59,32 @@ class MovieRepository @Inject()(
       case (SortableField.description, SortOrder.desc) => movieTable.description.toLowerCase.desc
       case (SortableField.releaseDate, SortOrder.asc) => movieTable.releaseDate.asc
       case (SortableField.releaseDate, SortOrder.desc) => movieTable.releaseDate.desc
-      case (SortableField.country, SortOrder.asc) => movieTable.country.asc
-      case (SortableField.country, SortOrder.desc) => movieTable.country.desc
+      case (SortableField.country, SortOrder.asc) => {
+        Country.seqValues.drop(1)
+          .foldLeft {
+            Case
+              .If(movieTable.country === Country.seqValues.head)
+              .Then(Some(Country.seqValues.head.countryName): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
+          }
+          .Else(Option.empty[String]: Rep[Option[String]])
+          .asc
+      }
+      case (SortableField.country, SortOrder.desc) => {
+        Country.seqValues.drop(1)
+          .foldLeft {
+            Case
+              .If(movieTable.country === Country.seqValues.head)
+              .Then(Some(Country.seqValues.head.countryName): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
+          }
+          .Else(Option.empty[String]: Rep[Option[String]])
+          .desc
+      }
       case (SortableField.language, SortOrder.asc) => movieTable.language.asc
       case (SortableField.language, SortOrder.desc) => movieTable.language.desc
       case _ => movieTable.id.asc

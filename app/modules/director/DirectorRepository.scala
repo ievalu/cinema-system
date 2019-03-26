@@ -72,8 +72,32 @@ class DirectorRepository @Inject() (
       case (SortableField.name, SortOrder.desc) => directorTable.firstName.toLowerCase.desc
       case (SortableField.birthDate, SortOrder.asc) => directorTable.birthDate.asc
       case (SortableField.birthDate, SortOrder.desc) => directorTable.birthDate.desc
-      case (SortableField.nationality, SortOrder.asc) => directorTable.nationality.asc
-      case (SortableField.nationality, SortOrder.desc) => directorTable.nationality.desc
+      case (SortableField.nationality, SortOrder.asc) => {
+        Country.seqValues.drop(1)
+          .foldLeft {
+            Case
+              .If(directorTable.nationality === Country.seqValues.head)
+              .Then(Some(Country.seqValues.head.nationality): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(directorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
+          }
+          .Else(Option.empty[String]: Rep[Option[String]])
+          .asc
+      }
+      case (SortableField.nationality, SortOrder.desc) => {
+        Country.seqValues.drop(1)
+          .foldLeft {
+            Case
+              .If(directorTable.nationality === Country.seqValues.head)
+              .Then(Some(Country.seqValues.head.nationality): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(directorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
+          }
+          .Else(Option.empty[String]: Rep[Option[String]])
+          .desc
+      }
       case (SortableField.height, SortOrder.asc) => directorTable.height.asc
       case (SortableField.height, SortOrder.desc) => directorTable.height.desc
       case _ => directorTable.id.asc

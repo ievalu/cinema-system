@@ -9,9 +9,9 @@ import modules.util.{Country, Gender, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import slick.lifted.ColumnOrdered
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 
 @Singleton
 class ActorRepository @Inject() (
@@ -73,8 +73,32 @@ class ActorRepository @Inject() (
       case (SortableField.name, SortOrder.desc) => actorTable.firstName.toLowerCase.desc
       case (SortableField.birthDate, SortOrder.asc) => actorTable.birthDate.asc
       case (SortableField.birthDate, SortOrder.desc) => actorTable.birthDate.desc
-      case (SortableField.nationality, SortOrder.asc) => actorTable.nationality.asc
-      case (SortableField.nationality, SortOrder.desc) => actorTable.nationality.desc
+      case (SortableField.nationality, SortOrder.asc) => {
+        Country.seqValues.drop(1)
+          .foldLeft {
+            Case
+              .If(actorTable.nationality === Country.seqValues.head)
+              .Then(Some(Country.seqValues.head.nationality): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(actorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
+          }
+              .Else(Option.empty[String]: Rep[Option[String]])
+              .asc
+        }
+      case (SortableField.nationality, SortOrder.desc) => {
+        Country.seqValues.drop(1)
+          .foldLeft {
+            Case
+              .If(actorTable.nationality === Country.seqValues.head)
+              .Then(Some(Country.seqValues.head.nationality): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(actorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
+          }
+          .Else(Option.empty[String]: Rep[Option[String]])
+          .desc
+      }
       case (SortableField.height, SortOrder.asc) => actorTable.height.asc
       case (SortableField.height, SortOrder.desc) => actorTable.height.desc
       case _ => actorTable.id.asc
