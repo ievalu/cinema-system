@@ -1,6 +1,8 @@
 package modules.actor
 
 import javax.inject.Inject
+import modules.util.Country.CountryVal
+import modules.util.Gender.GenderVal
 import modules.util.{GenderFormatter, NationalityFormatter}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -31,8 +33,10 @@ class ActorController @Inject() (
     mapping(
       "name" -> nonEmptyText,
       "birthDate" -> optional(sqlDate),
+      "nationality" -> of(NationalityFormatter),
       "heightMin" -> number.verifying(min(0), max(300)),
-      "heightMax" -> number.verifying(min(0), max(300))
+      "heightMax" -> number.verifying(min(0), max(300)),
+      "gender" -> of(GenderFormatter)
     )(FilterActorForm.apply)(FilterActorForm.unapply)
   }
 
@@ -41,14 +45,16 @@ class ActorController @Inject() (
       pageSize: Int,
       name: String,
       birthDate: String,
+      nationality: CountryVal,
       heightMin: Int,
       heightMax: Int,
+      gender: GenderVal,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
     repo
-      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), heightMin, heightMax, orderBy, order)
-      .map(actors => Ok(html.actor.list(actors, filterActorForm.fill(FilterActorForm(name, parseDate(birthDate), heightMin, heightMax)), SortItems(orderBy, order))))
+      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), nationality, heightMin, heightMax, gender, orderBy, order)
+      .map(actors => Ok(html.actor.list(actors, filterActorForm.fill(FilterActorForm(name, parseDate(birthDate), nationality, heightMin, heightMax, gender)), SortItems(orderBy, order))))
   }
 
   def createActor: Action[AnyContent] = Action {

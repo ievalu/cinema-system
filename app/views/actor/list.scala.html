@@ -1,5 +1,5 @@
-@import modules.actor.{Actor, SortableField, SortOrder, SortItems}
-@import modules.util.Page
+@import modules.actor.{Actor, SortableField, SortItems}
+@import modules.util._
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
 @import modules.actor.{FilterActorForm}
@@ -15,8 +15,10 @@
         8,
         filterForm("name").value.get,
         filterForm("birthDate").value.getOrElse(""),
+        Country.findByString(filterForm("nationality").value.get).get,
         filterForm("heightMin").value.get.toInt,
         filterForm("heightMax").value.get.toInt,
+        Gender.findByString(filterForm("gender").value.get).get,
         newOrderBy,
         if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
     )
@@ -37,7 +39,7 @@
                 <tr>
                     <th><a class="header" href="@linkToList(SortableField.name)">Name</a></th>
                     <th><a class="header" href="@linkToList(SortableField.birthDate)">Birth date</a></th>
-                    <th>Nationality</th>
+                    <th><a class="header" href="@linkToList(SortableField.nationality)">Nationality</a></th>
                     <th><a class="header" href="@linkToList(SortableField.height)">Height</a></th>
                     <th>Gender</th>
                     <th style="width: 70px"></th>
@@ -58,7 +60,14 @@
                             '_label -> ""
                         )
                     </td>
-                    <td></td>
+                    <td>
+                        @select(
+                            filterForm("nationality"),
+                            Country.values.toSeq.sortBy(_.nationality).map{nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
                     <td>
                         @inputText(
                             filterForm("heightMin"),
@@ -71,8 +80,22 @@
                             'type -> "number"
                         )
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td>
+                        @select(
+                            filterForm("gender"),
+                            Gender.values.toSeq.sortBy(_.actualName).map{genderVal => (genderVal.dbName, genderVal.actualName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        <button
+                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                type="button"
+                                onclick="location.href='@modules.actor.routes.ActorController.list()'">
+                            <i class="undo icon"></i>
+                        </button>
+                    </td>
                 </tr>
                 @Option(actors.items).filter(_.nonEmpty).map { actors =>
                     @actors.map { actor =>

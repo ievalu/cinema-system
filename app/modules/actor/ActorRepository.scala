@@ -3,7 +3,9 @@ package modules.actor
 import java.sql.Date
 
 import javax.inject.{Inject, Singleton}
-import modules.util.Page
+import modules.util.Country.CountryVal
+import modules.util.Gender.GenderVal
+import modules.util.{Country, Gender, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -24,8 +26,10 @@ class ActorRepository @Inject() (
   def filterLogic(
       name: String = "%",
       birthDate: Option[Date],
+      nationality: CountryVal,
       heightMin: Int,
-      heightMax: Int
+      heightMax: Int,
+      gender: GenderVal
   ) = {
     val nameArr = name.toLowerCase.split(" ")
     val firstQuery = actors
@@ -48,7 +52,15 @@ class ActorRepository @Inject() (
       case Some(date) => firstQuery.filter(actor => actor.birthDate === date)
       case None => firstQuery
     }
-    dateFilteredQuery
+    val nationalityFilteredQuery = nationality match {
+      case Country.NoCountry => dateFilteredQuery
+      case _ => dateFilteredQuery.filter(actor => actor.nationality === nationality)
+    }
+    val genderFilteredQuery = gender match {
+      case Gender.Other => nationalityFilteredQuery
+      case _ => nationalityFilteredQuery.filter(actor => actor.gender === gender)
+    }
+    genderFilteredQuery
   }
 
   def sortLogic(
@@ -61,6 +73,8 @@ class ActorRepository @Inject() (
       case (SortableField.name, SortOrder.desc) => actorTable.firstName.toLowerCase.desc
       case (SortableField.birthDate, SortOrder.asc) => actorTable.birthDate.asc
       case (SortableField.birthDate, SortOrder.desc) => actorTable.birthDate.desc
+      case (SortableField.nationality, SortOrder.asc) => actorTable.nationality.asc
+      case (SortableField.nationality, SortOrder.desc) => actorTable.nationality.desc
       case (SortableField.height, SortOrder.asc) => actorTable.height.asc
       case (SortableField.height, SortOrder.desc) => actorTable.height.desc
       case _ => actorTable.id.asc
@@ -70,25 +84,29 @@ class ActorRepository @Inject() (
   def count(
       name: String = "%",
       birthDate: Option[Date],
+      nationality: CountryVal,
       heightMin: Int,
-      heightMax: Int
-  ): Future[Int] = db.run(filterLogic(name, birthDate, heightMin, heightMax).length.result)
+      heightMax: Int,
+      gender: GenderVal
+  ): Future[Int] = db.run(filterLogic(name, birthDate, nationality, heightMin, heightMax, gender).length.result)
 
   def list(
       page: Int = 1,
       pageSize: Int = 8,
       name: String = "%",
       birthDate: Option[Date],
+      nationality: CountryVal,
       heightMin: Int,
       heightMax: Int,
+      gender: GenderVal,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Future[Page[Actor]] = {
     val offset = (page - 1) * pageSize
-    val filteredQuery = filterLogic(name, birthDate, heightMin, heightMax)
+    val filteredQuery = filterLogic(name, birthDate, nationality, heightMin, heightMax, gender)
     val sortedQuery = filteredQuery.sortBy{ a => sortLogic(a, orderBy, order) }
     for {
-      totalRows <- count(name, birthDate, heightMin, heightMax)
+      totalRows <- count(name, birthDate, nationality, heightMin, heightMax, gender)
       actorList <- db.run(
         sortedQuery
           .drop(offset)

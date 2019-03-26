@@ -110,7 +110,7 @@ package object util {
 
     val Female = GenderVal("f", "Female")
     val Male = GenderVal("m", "Male")
-    val Other = GenderVal("", "Other")
+    val Other = GenderVal("", "")
 
     implicit def valueToCountryVal(x: Value): GenderVal = x.asInstanceOf[GenderVal]
 
