@@ -2,12 +2,12 @@
 @import modules.utility.twirl.CustomHelpers._
 @import modules.actor.{CreateActorForm}
 @import modules.util.{Country, Gender}
-@(actorForm: Form[CreateActorForm], id: Long = 0)(implicit request: MessagesRequestHeader, flash: Flash)
+@(actorForm: Form[CreateActorForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Add actor") {
 
     @form(
-        if (actorForm("firstName").value) modules.actor.routes.ActorController.update(id) else modules.actor.routes.ActorController.saveNewActor(),
+        if (id != None) modules.actor.routes.ActorController.update(id.get) else modules.actor.routes.ActorController.saveNewActor(),
         'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}"
         ) {
             @inputText(
@@ -38,7 +38,7 @@
                 '_label -> "Gender"
             )
 
-            @if(actorForm("firstName").value) {
+            @if(id != None) {
                 <button id="edit-submit" class="ui primary button" type="submit">Update actor</button>
             } else {
                 <button id="create-submit" class="ui primary button" type="submit">Add actor</button>

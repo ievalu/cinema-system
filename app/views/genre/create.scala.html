@@ -1,11 +1,11 @@
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
 @import modules.genre.{CreateGenreForm}
-@(genreForm: Form[CreateGenreForm], id: Long = 0)(implicit request: MessagesRequestHeader, flash: Flash)
+@(genreForm: Form[CreateGenreForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Create movie") {
     @form(
-    if (genreForm("title").value) modules.genre.routes.GenreController.update(id) else modules.genre.routes.GenreController.saveNewGenre(),
+    if (id != None) modules.genre.routes.GenreController.update(id.get) else modules.genre.routes.GenreController.saveNewGenre(),
     'class -> s"ui form ${if(genreForm.hasErrors) "error" else ""}"
     ) {
         @inputText(
@@ -13,7 +13,7 @@
             '_label -> "Title"
         )
 
-        @if(genreForm("title").value) {
+        @if(id != None) {
             <button id="edit-submit" class="ui primary button" type="submit">Update Genre</button>
         } else {
             <button id="create-submit" class="ui primary button" type="submit">Add Genre</button>

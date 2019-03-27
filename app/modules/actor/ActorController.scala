@@ -104,7 +104,7 @@ class ActorController @Inject() (
                     actor.height,
                     actor.gender
                   )),
-              id
+              Some(id)
             ))
           case None => Ok(html.actor.create(createActorForm))
         }

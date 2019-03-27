@@ -73,7 +73,7 @@ class GenreController @Inject() (
             Ok(html.genre.create(
               createGenreForm
                 .fill(new CreateGenreForm(genre.title)),
-              id
+              Some(id)
             ))
           case None => Ok(html.genre.create(createGenreForm))
         }

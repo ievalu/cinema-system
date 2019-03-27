@@ -113,7 +113,7 @@ class DirectorController @Inject() (
                     director.height,
                     director.gender
                   )),
-              id
+              Some(id)
             ))
           case None => Ok(html.director.create(createDirectorForm))
         }

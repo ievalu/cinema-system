@@ -112,7 +112,7 @@ class MovieController @Inject()(
             Ok(html.movie.create(
               createMovieForm
                 .fill(new CreateMovieForm(movie.title, movie.description, movie.releaseDate, movie.country, movie.language)),
-              id
+              Some(id)
             ))
           case None => Ok(html.movie.create(createMovieForm))
         }
