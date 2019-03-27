@@ -4,26 +4,26 @@
 
 # Movies
 GET     /                           modules.movie.MovieController.index
-GET     /movies                     modules.movie.MovieController.list(page: Int ?= 1, pageSize: Int ?= 8, title: String ?= "", description: String ?= "", releaseDate ?= "", country: modules.util.Country.CountryVal ?= modules.util.Country.NoCountry, language: modules.util.Language.LanguageVal ?= modules.util.Language.NoLanguage, orderBy: modules.movie.SortableField.Value ?= modules.movie.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
+GET     /movies                     modules.movie.MovieController.list(page: Int ?= 1, pageSize: Int ?= 8, title: String ?= "", description: String ?= "", releaseDate ?= "", country: modules.util.Country.Value ?= modules.util.Country.NoCountry, language: modules.util.Language.Value ?= modules.util.Language.NoLanguage, orderBy: modules.movie.SortableField.Value ?= modules.movie.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
 GET     /movies/new                 modules.movie.MovieController.createMovie
 POST    /movies                     modules.movie.MovieController.saveNewMovie
-DELETE  /movies/:id                 modules.movie.MovieController.delete(id: Long)
+POST    /movies/:id/delete          modules.movie.MovieController.delete(id: Long)
 GET     /movies/:id/edit            modules.movie.MovieController.edit(id: Long)
 POST    /movies/:id/edit            modules.movie.MovieController.update(id: Long)
 
 # Directors
-GET     /directors                  modules.director.DirectorController.list(page: Int ?= 1, pageSize: Int ?= 8, name: String ?= "", birthDate ?= "", nationality: modules.util.Country.CountryVal ?= modules.util.Country.NoCountry, heightMin: Int ?= 0, heightMax: Int ?= 300, gender: modules.util.Gender.GenderVal ?= modules.util.Gender.Other, orderBy: modules.director.SortableField.Value ?= modules.director.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
+GET     /directors                  modules.director.DirectorController.list(page: Int ?= 1, pageSize: Int ?= 8, name: String ?= "", birthDate ?= "", nationality: modules.util.Country.Value ?= modules.util.Country.NoCountry, heightMin: Int ?= 0, heightMax: Int ?= 300, gender: modules.util.Gender.Value ?= modules.util.Gender.Other, orderBy: modules.director.SortableField.Value ?= modules.director.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
 GET     /directors/new              modules.director.DirectorController.createDirector
 POST    /directors                  modules.director.DirectorController.saveNewDirector
-DELETE  /directors/:id              modules.director.DirectorController.delete(id: Long)
+POST    /directors/:id/delete       modules.director.DirectorController.delete(id: Long)
 GET     /directors/:id/edit         modules.director.DirectorController.edit(id: Long)
 POST    /directors/:id/edit         modules.director.DirectorController.update(id: Long)
 
 # Actors
-GET     /actors                     modules.actor.ActorController.list(page: Int ?= 1, pageSize: Int ?= 8, name: String ?= "", birthDate ?= "", nationality: modules.util.Country.CountryVal ?= modules.util.Country.NoCountry, heightMin: Int ?= 0, heightMax: Int ?= 300, gender: modules.util.Gender.GenderVal ?= modules.util.Gender.Other, orderBy: modules.actor.SortableField.Value ?= modules.actor.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
+GET     /actors                     modules.actor.ActorController.list(page: Int ?= 1, pageSize: Int ?= 8, name: String ?= "", birthDate ?= "", nationality: modules.util.Country.Value ?= modules.util.Country.NoCountry, heightMin: Int ?= 0, heightMax: Int ?= 300, gender: modules.util.Gender.Value ?= modules.util.Gender.Other, orderBy: modules.actor.SortableField.Value ?= modules.actor.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
 GET     /actors/new                 modules.actor.ActorController.createActor
 POST    /actors                     modules.actor.ActorController.saveNewActor
-DELETE  /actors/:id                 modules.actor.ActorController.delete(id: Long)
+POST    /actors/:id/delete          modules.actor.ActorController.delete(id: Long)
 GET     /actors/:id/edit            modules.actor.ActorController.edit(id: Long)
 POST    /actors/:id/edit            modules.actor.ActorController.update(id: Long)
 
@@ -31,7 +31,7 @@ POST    /actors/:id/edit            modules.actor.ActorController.update(id: Lon
 GET     /genres                     modules.genre.GenreController.list(page: Int ?= 1, pageSize: Int ?= 8, title: String ?= "", orderBy: modules.genre.SortableField.Value ?= modules.genre.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
 GET     /genres/new                 modules.genre.GenreController.createGenre
 POST    /genres                     modules.genre.GenreController.saveNewGenre
-DELETE  /genres/:id                 modules.genre.GenreController.delete(id: Long)
+POST    /genres/:id/delete          modules.genre.GenreController.delete(id: Long)
 GET     /genres/:id/edit            modules.genre.GenreController.edit(id: Long)
 POST    /genres/:id/edit            modules.genre.GenreController.update(id: Long)
 

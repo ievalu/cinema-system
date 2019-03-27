@@ -1,8 +1,6 @@
 package modules.movie
 
 import javax.inject._
-import modules.util.Country.CountryVal
-import modules.util.Language.LanguageVal
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
@@ -46,8 +44,8 @@ class MovieController @Inject()(
       title: String = "%",
       description: String = "%",
       releaseDate: String,
-      country: CountryVal,
-      language: LanguageVal,
+      country: Country.Value,
+      language: Language.Value,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>

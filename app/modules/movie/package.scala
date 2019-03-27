@@ -2,9 +2,7 @@ package modules
 
 import java.sql.Date
 
-import modules.util.Country.CountryVal
-import modules.util.Language.LanguageVal
-import modules.util.SortOrder
+import modules.util.{Country, Language, SortOrder}
 import play.api.mvc.QueryStringBindable
 
 import scala.util.{Failure, Success, Try}
@@ -16,24 +14,24 @@ package object movie {
       title: String,
       description: String,
       releaseDate: Date,
-      country: CountryVal,
-      language: LanguageVal
+      country: Country.Value,
+      language: Language.Value
   )
 
   case class CreateMovieForm (
       title: String,
       description: String,
       releaseDate: Date,
-      country: CountryVal,
-      language: LanguageVal
+      country: Country.Value,
+      language: Language.Value
   )
 
   case class FilterMovieForm (
       title: String,
       description: String,
       releaseDate: Option[Date],
-      country: CountryVal,
-      language: LanguageVal
+      country: Country.Value,
+      language: Language.Value
   )
 
   object SortableField extends Enumeration {

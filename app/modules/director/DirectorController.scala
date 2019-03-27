@@ -1,8 +1,6 @@
 package modules.director
 
 import javax.inject.Inject
-import modules.util.Country.CountryVal
-import modules.util.Gender.GenderVal
 import modules.util.{GenderFormatter, NationalityFormatter}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -45,10 +43,10 @@ class DirectorController @Inject() (
       pageSize: Int,
       name: String,
       birthDate: String,
-      nationality: CountryVal,
+      nationality: Country.Value,
       heightMin: Int,
       heightMax: Int,
-      gender: GenderVal,
+      gender: Gender.Value,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>

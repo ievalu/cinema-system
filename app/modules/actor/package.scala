@@ -4,7 +4,7 @@ import java.sql.Date
 
 import modules.util.Country.CountryVal
 import modules.util.Gender.GenderVal
-import modules.util.SortOrder
+import modules.util.{Country, Gender, SortOrder}
 import play.api.mvc.QueryStringBindable
 
 import scala.util.{Failure, Success, Try}
@@ -16,27 +16,27 @@ package object actor {
       firstName: String,
       lastName: String,
       birthDate: Date,
-      nationality: CountryVal,
+      nationality: Country.Value,
       height: Int,
-      gender: GenderVal
+      gender: Gender.Value
   )
 
   case class CreateActorForm (
       firstName: String,
       lastName: String,
       birthDate: Date,
-      nationality: CountryVal,
+      nationality: Country.Value,
       height: Int,
-      gender: GenderVal
+      gender: Gender.Value
   )
 
   case class FilterActorForm (
       name: String,
       birthDate: Option[Date],
-      nationality: CountryVal,
+      nationality: Country.Value,
       heightMin: Int,
       heightMax: Int,
-      gender: GenderVal
+      gender: Gender.Value
   )
 
   object SortableField extends Enumeration {

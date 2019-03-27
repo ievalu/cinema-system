@@ -3,10 +3,6 @@ package modules
 import java.sql.Date
 import java.text.SimpleDateFormat
 
-import modules.util.Country
-import modules.util.Country.CountryVal
-import modules.util.Gender.GenderVal
-import modules.util.Language.LanguageVal
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import play.api.mvc.QueryStringBindable
@@ -16,30 +12,30 @@ import scala.util.{Failure, Success, Try}
 
 package object util {
 
-  def CountryFormatter: Formatter[CountryVal] = new Formatter[CountryVal] {
-    def bind(key: String, data: Map[String, String]): Either[List[FormError], CountryVal] = {
+  def CountryFormatter: Formatter[Country.Value] = new Formatter[Country.Value] {
+    def bind(key: String, data: Map[String, String]): Either[List[FormError], Country.Value] = {
       val value = data.getOrElse(key, "")
       Country
         .findByString(value)
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Country not found by value:'$value'"))))
     }
-    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> value.dbName)
+    def unbind(key: String, value: Country.Value): Map[String, String] = Map(key -> value.dbName)
   }
 
-  def NationalityFormatter: Formatter[CountryVal] = new Formatter[CountryVal] {
-    def bind(key: String, data: Map[String, String]): Either[List[FormError], CountryVal] = {
+  def NationalityFormatter: Formatter[Country.Value] = new Formatter[Country.Value] {
+    def bind(key: String, data: Map[String, String]): Either[List[FormError], Country.Value] = {
       val value = data.getOrElse(key, "")
       Country
         .findByString(value)
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Nationality not found by value:'$value'"))))
     }
-    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> value.dbName)
+    def unbind(key: String, value: Country.Value): Map[String, String] = Map(key -> value.dbName)
   }
 
   object Country extends Enumeration {
-    sealed case class CountryVal private[Country](dbName: String, countryName: String, nationality: String) extends super.Val
+    protected case class CountryVal private[Country](dbName: String, countryName: String, nationality: String) extends super.Val
 
     val USA = CountryVal("US", "USA", "American")
     val Australia = CountryVal("AU", "Australia", "Australian")
@@ -73,23 +69,9 @@ package object util {
       )
     }
 
-    def seqValues: Seq[CountryVal] = Seq(
-      USA,
-      Australia,
-      NewZealand,
-      Spain,
-      Sweden,
-      Lithuania,
-      Italy,
-      Afghanistan,
-      Belgium,
-      Brazil,
-      NoCountry
-    )
-
     implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
-      new QueryStringBindable[CountryVal] {
-        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, CountryVal]] = {
+      new QueryStringBindable[Country.Value] {
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Country.Value]] = {
           stringBinder.bind(key, params)
             .map {
               case Right(s) =>
@@ -103,25 +85,25 @@ package object util {
                 Left(baseBinderFailure)
             }
         }
-        override def unbind(key: String, country: CountryVal): String = {
+        override def unbind(key: String, country: Country.Value): String = {
           stringBinder.unbind(key, country.dbName)
         }
       }
   }
 
-  def GenderFormatter: Formatter[GenderVal] = new Formatter[GenderVal] {
-    def bind(key: String, data: Map[String, String]): Either[List[FormError], GenderVal] = {
+  def GenderFormatter: Formatter[Gender.Value] = new Formatter[Gender.Value] {
+    def bind(key: String, data: Map[String, String]): Either[List[FormError], Gender.Value] = {
       val value = data.getOrElse(key, "")
       Gender
         .findByString(value)
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Gender not found by value:'$value'"))))
     }
-    def unbind(key: String, value: GenderVal): Map[String, String] = Map(key -> value.dbName)
+    def unbind(key: String, value: Gender.Value): Map[String, String] = Map(key -> value.dbName)
   }
 
   object Gender extends Enumeration {
-    sealed case class GenderVal private[Gender](dbName: String, actualName: String) extends Val(dbName)
+    protected case class GenderVal private[Gender](dbName: String, actualName: String) extends Val(dbName)
 
     val Female = GenderVal("f", "Female")
     val Male = GenderVal("m", "Male")
@@ -138,8 +120,8 @@ package object util {
     )
 
     implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
-      new QueryStringBindable[GenderVal] {
-        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, GenderVal]] = {
+      new QueryStringBindable[Gender.Value] {
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Gender.Value]] = {
           stringBinder.bind(key, params)
             .map {
               case Right(s) =>
@@ -153,24 +135,24 @@ package object util {
                 Left(baseBinderFailure)
             }
         }
-        override def unbind(key: String, gender: GenderVal): String = {
+        override def unbind(key: String, gender: Gender.Value): String = {
           stringBinder.unbind(key, gender.dbName)
         }
       }
   }
-  def LanguageFormatter: Formatter[LanguageVal] = new Formatter[LanguageVal] {
-    def bind(key: String, data: Map[String, String]): Either[List[FormError], LanguageVal] = {
+  def LanguageFormatter: Formatter[Language.Value] = new Formatter[Language.Value] {
+    def bind(key: String, data: Map[String, String]): Either[List[FormError], Language.Value] = {
       val value = data.getOrElse(key, "")
       Language
         .findByString(value)
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Language not found by value:'$value'"))))
     }
-    def unbind(key: String, value: LanguageVal): Map[String, String] = Map(key -> value.dbName)
+    def unbind(key: String, value: Language.Value): Map[String, String] = Map(key -> value.dbName)
   }
 
   object Language extends Enumeration {
-    sealed case class LanguageVal private[Language](dbName: String, actualName: String) extends Val(dbName)
+    protected case class LanguageVal private[Language](dbName: String, actualName: String) extends Val(dbName)
 
     val english = LanguageVal("en", "English")
     val swedish = LanguageVal("sw", "Swedish")
@@ -193,8 +175,8 @@ package object util {
     }
 
     implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
-      new QueryStringBindable[LanguageVal] {
-        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, LanguageVal]] = {
+      new QueryStringBindable[Language.Value] {
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Language.Value]] = {
           stringBinder.bind(key, params)
             .map {
               case Right(s) =>
@@ -208,7 +190,7 @@ package object util {
                 Left(baseBinderFailure)
             }
         }
-        override def unbind(key: String, language: LanguageVal): String = {
+        override def unbind(key: String, language: Language.Value): String = {
           stringBinder.unbind(key, language.dbName)
         }
       }

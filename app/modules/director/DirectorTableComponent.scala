@@ -2,21 +2,19 @@ package modules.director
 
 import java.sql.Date
 
-import modules.util.Country.CountryVal
 import modules.util.{Country, Gender}
-import modules.util.Gender.GenderVal
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.db.slick.HasDatabaseConfig
 
 trait DirectorTableComponent { self: HasDatabaseConfig[ExtendedPostgresProfile] =>
   import profile.api._
 
-  implicit val nationalityColumnType: BaseColumnType[CountryVal] = MappedColumnType.base[CountryVal, String](
+  implicit val nationalityColumnType: BaseColumnType[Country.Value] = MappedColumnType.base[Country.Value, String](
     { enum => enum.dbName },
     { string => Country.findByString(string).getOrElse(Country.NoCountry) }
   )
 
-  implicit val genderColumnType: BaseColumnType[GenderVal] = MappedColumnType.base[GenderVal, String](
+  implicit val genderColumnType: BaseColumnType[Gender.Value] = MappedColumnType.base[Gender.Value, String](
     { enum => enum.dbName },
     { string => Gender.findByString(string).getOrElse(Gender.Other) }
   )
@@ -27,9 +25,9 @@ trait DirectorTableComponent { self: HasDatabaseConfig[ExtendedPostgresProfile] 
     def firstName = column[String]("first-name")
     def lastName = column[String]("last-name")
     def birthDate = column[Date]("birth-date")
-    def nationality = column[CountryVal]("nationality")
+    def nationality = column[Country.Value]("nationality")
     def height = column[Int]("height")
-    def gender = column[GenderVal]("gender")
+    def gender = column[Gender.Value]("gender")
 
     def * = (
       id, firstName, lastName, birthDate, nationality, height, gender

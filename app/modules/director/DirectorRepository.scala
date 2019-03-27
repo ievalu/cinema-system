@@ -3,8 +3,6 @@ package modules.director
 import java.sql.Date
 
 import javax.inject.{Inject, Singleton}
-import modules.util.Country.CountryVal
-import modules.util.Gender.GenderVal
 import modules.util.{Country, Gender, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
@@ -25,10 +23,10 @@ class DirectorRepository @Inject() (
   def filterLogic(
       name: String = "%",
       birthDate: Option[Date],
-      nationality: CountryVal,
+      nationality: Country.Value,
       heightMin: Int,
       heightMax: Int,
-      gender: GenderVal
+      gender: Gender.Value
   ) = {
     val firstQuery = directors
       .filter(
@@ -67,11 +65,11 @@ class DirectorRepository @Inject() (
       case (SortableField.birthDate, SortOrder.asc) => directorTable.birthDate.asc
       case (SortableField.birthDate, SortOrder.desc) => directorTable.birthDate.desc
       case (SortableField.nationality, SortOrder.asc) => {
-        Country.seqValues.drop(1)
+        Country.values.drop(1)
           .foldLeft {
             Case
-              .If(directorTable.nationality === Country.seqValues.head)
-              .Then(Some(Country.seqValues.head.nationality): Rep[Option[String]])
+              .If(directorTable.nationality === Country.values.head)
+              .Then(Some(Country.values.head.nationality): Rep[Option[String]])
           } {
             case(acc, enum) =>
               acc.If(directorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
@@ -80,11 +78,11 @@ class DirectorRepository @Inject() (
           .asc
       }
       case (SortableField.nationality, SortOrder.desc) => {
-        Country.seqValues.drop(1)
+        Country.values.drop(1)
           .foldLeft {
             Case
-              .If(directorTable.nationality === Country.seqValues.head)
-              .Then(Some(Country.seqValues.head.nationality): Rep[Option[String]])
+              .If(directorTable.nationality === Country.values.head)
+              .Then(Some(Country.values.head.nationality): Rep[Option[String]])
           } {
             case(acc, enum) =>
               acc.If(directorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
@@ -101,10 +99,10 @@ class DirectorRepository @Inject() (
   def count(
       name: String = "%",
       birthDate: Option[Date],
-      nationality: CountryVal,
+      nationality: Country.Value,
       heightMin: Int,
       heightMax: Int,
-      gender: GenderVal
+      gender: Gender.Value
   ): Future[Int] = db.run(filterLogic(name, birthDate, nationality, heightMin, heightMax, gender).length.result)
 
   def list(
@@ -112,10 +110,10 @@ class DirectorRepository @Inject() (
       pageSize: Int = 8,
       name: String = "%",
       birthDate: Option[Date],
-      nationality: CountryVal,
+      nationality: Country.Value,
       heightMin: Int,
       heightMax: Int,
-      gender: GenderVal,
+      gender: Gender.Value,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Future[Page[Director]] = {

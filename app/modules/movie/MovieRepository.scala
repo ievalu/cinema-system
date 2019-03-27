@@ -3,8 +3,6 @@ package modules.movie
 import java.sql.Date
 
 import javax.inject.{Inject, Singleton}
-import modules.util.Country.CountryVal
-import modules.util.Language.LanguageVal
 import modules.util.{Country, Language, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
@@ -26,8 +24,8 @@ class MovieRepository @Inject()(
       title: String = "%",
       description: String = "%",
       releaseDate: Option[Date],
-      country: CountryVal,
-      language: LanguageVal
+      country: Country.Value,
+      language: Language.Value
   ) = {
     val firstQuery = movies
       .filter(movie => movie.title ilike title)
@@ -60,11 +58,11 @@ class MovieRepository @Inject()(
       case (SortableField.releaseDate, SortOrder.asc) => movieTable.releaseDate.asc
       case (SortableField.releaseDate, SortOrder.desc) => movieTable.releaseDate.desc
       case (SortableField.country, SortOrder.asc) => {
-        Country.seqValues.drop(1)
+        Country.values.drop(1)
           .foldLeft {
             Case
-              .If(movieTable.country === Country.seqValues.head)
-              .Then(Some(Country.seqValues.head.countryName): Rep[Option[String]])
+              .If(movieTable.country === Country.values.head)
+              .Then(Some(Country.values.head.countryName): Rep[Option[String]])
           } {
             case(acc, enum) =>
               acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
@@ -73,11 +71,11 @@ class MovieRepository @Inject()(
           .asc
       }
       case (SortableField.country, SortOrder.desc) => {
-        Country.seqValues.drop(1)
+        Country.values.drop(1)
           .foldLeft {
             Case
-              .If(movieTable.country === Country.seqValues.head)
-              .Then(Some(Country.seqValues.head.countryName): Rep[Option[String]])
+              .If(movieTable.country === Country.values.head)
+              .Then(Some(Country.values.head.countryName): Rep[Option[String]])
           } {
             case(acc, enum) =>
               acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
@@ -95,8 +93,8 @@ class MovieRepository @Inject()(
       title: String = "%",
       description: String = "%",
       releaseDate: Option[Date],
-      country: CountryVal,
-      language: LanguageVal
+      country: Country.Value,
+      language: Language.Value
   ): Future[Int] = db.run(filterLogic(title, description, releaseDate, country, language).length.result)
 
   def list(
@@ -105,8 +103,8 @@ class MovieRepository @Inject()(
       title: String = "%",
       description: String = "%",
       releaseDate: Option[Date],
-      country: CountryVal,
-      language: LanguageVal,
+      country: Country.Value,
+      language: Language.Value,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Future[Page[Movie]] = {
