@@ -30,8 +30,8 @@ class MovieRepository @Inject()(
       language: LanguageVal
   ) = {
     val firstQuery = movies
-      .filter(movie => movie.title.toLowerCase like title.toLowerCase)
-      .filter(movie => movie.description.toLowerCase like description.toLowerCase)
+      .filter(movie => movie.title ilike title)
+      .filter(movie => movie.description ilike description)
     val dateFilteredQuery = releaseDate match {
       case Some(date) => firstQuery.filter(movie => movie.releaseDate === date)
       case None => firstQuery

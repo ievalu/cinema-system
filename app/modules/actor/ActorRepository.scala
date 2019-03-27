@@ -31,21 +31,15 @@ class ActorRepository @Inject() (
       heightMax: Int,
       gender: GenderVal
   ) = {
-    val nameArr = name.toLowerCase.split(" ")
     val firstQuery = actors
       .filter(
-        actor => nameArr.length match {
-          case 1 => {
-            (actor.firstName.toLowerCase like nameArr(0)) ||
-              (actor.lastName.toLowerCase like nameArr(0))
-          }
-          case 2 => {
-            (actor.firstName.toLowerCase like nameArr(0)) ||
-              (actor.lastName.toLowerCase like nameArr(0)) ||
-              (actor.firstName.toLowerCase like nameArr(1)) ||
-              (actor.lastName.toLowerCase like nameArr(1))
-          }
-        }
+        actor =>
+          name.trim().split(" ")
+            .map { word =>
+              actor.firstName.ilike(word) || actor.lastName.ilike(word)
+            }
+            .reduceLeftOption(_ || _)
+            .getOrElse(true: Rep[Boolean])
       )
       .filter(actor => actor.height >= heightMin && actor.height <= heightMax)
     val dateFilteredQuery = birthDate match {

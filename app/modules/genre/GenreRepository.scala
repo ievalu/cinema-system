@@ -18,7 +18,7 @@ class GenreRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def filterLogic(title: String) = genres.filter(genre => genre.title like title)
+  def filterLogic(title: String) = genres.filter(genre => genre.title ilike title)
 
   def sortLogic(
       genreTable: GenreTable,

@@ -30,21 +30,15 @@ class DirectorRepository @Inject() (
       heightMax: Int,
       gender: GenderVal
   ) = {
-    val nameArr = name.toLowerCase.split(" ")
     val firstQuery = directors
       .filter(
-        director => nameArr.length match {
-          case 1 => {
-            (director.firstName.toLowerCase like nameArr(0)) ||
-              (director.lastName.toLowerCase like nameArr(0))
-          }
-          case 2 => {
-            (director.firstName.toLowerCase like nameArr(0)) ||
-            (director.lastName.toLowerCase like nameArr(0)) ||
-            (director.firstName.toLowerCase like nameArr(1)) ||
-            (director.lastName.toLowerCase like nameArr(1))
-          }
-        }
+        director =>
+          name.trim().split(" ")
+            .map { word =>
+              director.firstName.ilike(word) || director.lastName.ilike(word)
+            }
+            .reduceLeftOption(_ || _)
+            .getOrElse(true: Rep[Boolean])
       )
       .filter(director => director.height >= heightMin && director.height <= heightMax)
     val dateFilteredQuery = birthDate match {
