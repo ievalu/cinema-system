@@ -83,7 +83,6 @@ class DirectorController @Inject() (
       )
   }
 
-  // FIX flashing doesn't work
   def delete(id: Long): Action[AnyContent] = Action.async {
     implicit request =>
       repo
