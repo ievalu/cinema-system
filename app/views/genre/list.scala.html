@@ -58,20 +58,20 @@
                         <tr>
                             <td>@genre.title.toLowerCase.capitalize</td>
                             <td style="width: 70px">
-                                <a
-                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        href="@modules.genre.routes.GenreController.edit(genre.id)">
-                                    <i class="edit outline icon"></i>
-                                </a>
                                 @form(
                                     modules.genre.routes.GenreController.delete(genre.id),
                                     'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
                                 ) {
+                                    <a
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            href="@modules.genre.routes.GenreController.edit(genre.id)">
+                                        <i class="edit outline icon"></i>
+                                    </a>
                                     <button
                                             style="border: none; background-color: transparent; padding: 0; cursor: pointer"
                                             type="submit"
                                     >
-                                        <i class="trash alternate outline icon"></i>
+                                        <i class="trash alternate outline icon red"></i>
                                     </button>
                                 }
                             </td>

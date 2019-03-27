@@ -109,20 +109,20 @@
                             <td>@actor.height</td>
                             <td>@actor.gender.actualName</td>
                             <td style="width: 70px">
-                                <a
-                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        href="@modules.actor.routes.ActorController.edit(actor.id)">
-                                    <i class="edit outline icon"></i>
-                                </a>
                                 @form(
                                 modules.actor.routes.ActorController.delete(actor.id),
                                 'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
                                 ) {
+                                    <a
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            href="@modules.actor.routes.ActorController.edit(actor.id)">
+                                        <i class="edit outline icon"></i>
+                                    </a>
                                     <button
                                             style="border: none; background-color: transparent; padding: 0; cursor: pointer"
                                             type="submit"
                                     >
-                                        <i class="trash alternate outline icon"></i>
+                                        <i class="trash alternate outline icon red"></i>
                                     </button>
                                 }
                             </td>

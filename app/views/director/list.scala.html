@@ -109,20 +109,20 @@
                             <td>@director.height</td>
                             <td>@director.gender.actualName</td>
                             <td style="width: 70px">
-                                <a
-                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                    href="@modules.director.routes.DirectorController.edit(director.id)">
-                                    <i class="edit outline icon"></i>
-                                </a>
                                 @form(
                                     modules.director.routes.DirectorController.delete(director.id),
                                     'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
                                 ) {
+                                    <a
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            href="@modules.director.routes.DirectorController.edit(director.id)">
+                                        <i class="edit outline icon"></i>
+                                    </a>
                                     <button
                                         style="border: none; background-color: transparent; padding: 0; cursor: pointer"
                                         type="submit"
                                     >
-                                        <i class="trash alternate outline icon"></i>
+                                        <i class="trash alternate outline icon red"></i>
                                     </button>
                                 }
                             </td>

@@ -99,20 +99,20 @@
                             <td>@movie.country.countryName</td>
                             <td>@movie.language.actualName</td>
                             <td style="width: 70px">
-                                <a
-                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        href="@modules.movie.routes.MovieController.edit(movie.id)">
-                                    <i class="edit outline icon"></i>
-                                </a>
                                 @form(
                                     modules.movie.routes.MovieController.delete(movie.id),
                                     'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
                                 ) {
+                                    <a
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            href="@modules.movie.routes.MovieController.edit(movie.id)">
+                                        <i class="edit outline icon"></i>
+                                    </a>
                                     <button
                                             style="border: none; background-color: transparent; padding: 0; cursor: pointer"
                                             type="submit"
                                     >
-                                        <i class="trash alternate outline icon"></i>
+                                        <i class="trash alternate outline icon red"></i>
                                     </button>
                                 }
                             </td>
