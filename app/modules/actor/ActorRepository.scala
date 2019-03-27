@@ -22,23 +22,27 @@ class ActorRepository @Inject() (
   private val logger = Logger(this.getClass)
 
   def filterLogic(
-      name: String = "%",
+      name: Option[String],
       birthDate: Option[Date],
       nationality: Country.Value,
       heightMin: Int,
       heightMax: Int,
       gender: Gender.Value
   ) = {
-    val firstQuery = actors
-      .filter(
-        actor =>
-          name.trim().split(" ")
-            .map { word =>
-              actor.firstName.ilike(word) || actor.lastName.ilike(word)
-            }
+
+    val firstQuery =
+      name.map {
+        nameVal =>
+          actors.filter(
+            actor =>
+            nameVal.split(" ")
+              .map { word =>
+                actor.firstName.ilike("%" + word + "%") || actor.lastName.ilike("%" + word + "%")
+              }
             .reduceLeftOption(_ || _)
             .getOrElse(true: Rep[Boolean])
-      )
+          )
+      }.getOrElse(actors)
       .filter(actor => actor.height >= heightMin && actor.height <= heightMax)
     val dateFilteredQuery = birthDate match {
       case Some(date) => firstQuery.filter(actor => actor.birthDate === date)
@@ -98,7 +102,7 @@ class ActorRepository @Inject() (
   }
 
   def count(
-      name: String = "%",
+      name: Option[String],
       birthDate: Option[Date],
       nationality: Country.Value,
       heightMin: Int,
@@ -109,7 +113,7 @@ class ActorRepository @Inject() (
   def list(
       page: Int = 1,
       pageSize: Int = 8,
-      name: String = "%",
+      name: Option[String],
       birthDate: Option[Date],
       nationality: Country.Value,
       heightMin: Int,

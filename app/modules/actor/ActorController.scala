@@ -50,8 +50,9 @@ class ActorController @Inject() (
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
+    val nameToRepo = if (name.trim().nonEmpty) Some(name) else None
     repo
-      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), nationality, heightMin, heightMax, gender, orderBy, order)
+      .list(page, pageSize, nameToRepo, parseDate(birthDate), nationality, heightMin, heightMax, gender, orderBy, order)
       .map(actors => Ok(html.actor.list(actors, filterActorForm.fill(FilterActorForm(name, parseDate(birthDate), nationality, heightMin, heightMax, gender)), SortItems(orderBy, order))))
   }
 

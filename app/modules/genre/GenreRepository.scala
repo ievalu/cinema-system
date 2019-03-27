@@ -18,7 +18,12 @@ class GenreRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def filterLogic(title: String) = genres.filter(genre => genre.title ilike title)
+  def filterLogic(title: Option[String]) = {
+    title.map {
+      titleVal =>
+        genres.filter(genre => genre.title ilike "%" + titleVal + "%")
+    }.getOrElse(genres)
+  }
 
   def sortLogic(
       genreTable: GenreTable,
@@ -32,12 +37,12 @@ class GenreRepository @Inject() (
     }
   }
 
-  def count(title: String): Future[Int] = db.run(filterLogic(title).length.result)
+  def count(title: Option[String]): Future[Int] = db.run(filterLogic(title).length.result)
 
   def list(
       page: Int = 1,
       pageSize: Int = 8,
-      title: String = "%",
+      title: Option[String],
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Future[Page[Genre]] = {

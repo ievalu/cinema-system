@@ -21,18 +21,23 @@ class MovieRepository @Inject()(
   private val logger = Logger(this.getClass)
 
   def filterLogic(
-      title: String = "%",
-      description: String = "%",
+      title: Option[String],
+      description: Option[String],
       releaseDate: Option[Date],
       country: Country.Value,
       language: Language.Value
   ) = {
-    val firstQuery = movies
-      .filter(movie => movie.title ilike title)
-      .filter(movie => movie.description ilike description)
+    val titleQuery = title.map {
+      titleVal =>
+        movies.filter(movie => movie.title ilike "%" + titleVal + "%")
+    }.getOrElse(movies)
+    val descriptionQuery = description.map {
+      descriptionVal =>
+        titleQuery.filter(movie => movie.description ilike "%" + descriptionVal + "%")
+    }.getOrElse(titleQuery)
     val dateFilteredQuery = releaseDate match {
-      case Some(date) => firstQuery.filter(movie => movie.releaseDate === date)
-      case None => firstQuery
+      case Some(date) => descriptionQuery.filter(movie => movie.releaseDate === date)
+      case None => descriptionQuery
     }
     val countryFilteredQuery = country match {
       case Country.NoCountry => dateFilteredQuery
@@ -90,8 +95,8 @@ class MovieRepository @Inject()(
   }
 
   def count(
-      title: String = "%",
-      description: String = "%",
+      title: Option[String],
+      description: Option[String],
       releaseDate: Option[Date],
       country: Country.Value,
       language: Language.Value
@@ -100,8 +105,8 @@ class MovieRepository @Inject()(
   def list(
       page: Int = 1,
       pageSize: Int = 8,
-      title: String = "%",
-      description: String = "%",
+      title: Option[String],
+      description: Option[String],
       releaseDate: Option[Date],
       country: Country.Value,
       language: Language.Value,

@@ -41,19 +41,21 @@ class MovieController @Inject()(
   def list(
       page: Int,
       pageSize: Int,
-      title: String = "%",
-      description: String = "%",
+      title: String,
+      description: String,
       releaseDate: String,
       country: Country.Value,
       language: Language.Value,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
+    val titleToRepo = if (title.trim().nonEmpty) Some(title) else None
+    val descriptionToRepo = if (description.trim().nonEmpty) Some(description) else None
     repo.list(
       page,
       pageSize,
-      "%" + title + "%",
-      "%" + description + "%",
+      titleToRepo,
+      descriptionToRepo,
       parseDate(releaseDate),
       country,
       language,

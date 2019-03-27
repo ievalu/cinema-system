@@ -21,23 +21,25 @@ class DirectorRepository @Inject() (
   private val logger = Logger(this.getClass)
 
   def filterLogic(
-      name: String = "%",
+      name: Option[String],
       birthDate: Option[Date],
       nationality: Country.Value,
       heightMin: Int,
       heightMax: Int,
       gender: Gender.Value
   ) = {
-    val firstQuery = directors
-      .filter(
-        director =>
-          name.trim().split(" ")
-            .map { word =>
-              director.firstName.ilike(word) || director.lastName.ilike(word)
-            }
-            .reduceLeftOption(_ || _)
-            .getOrElse(true: Rep[Boolean])
-      )
+    val firstQuery = name.map {
+      nameVal =>
+        directors.filter(
+          director =>
+            nameVal.split(" ")
+              .map { word =>
+                director.firstName.ilike("%" + word + "%") || director.lastName.ilike("%" + word + "%")
+              }
+              .reduceLeftOption(_ || _)
+              .getOrElse(true: Rep[Boolean])
+        )
+    }.getOrElse(directors)
       .filter(director => director.height >= heightMin && director.height <= heightMax)
     val dateFilteredQuery = birthDate match {
       case Some(date) => firstQuery.filter(director => director.birthDate === date)
@@ -97,7 +99,7 @@ class DirectorRepository @Inject() (
   }
 
   def count(
-      name: String = "%",
+      name: Option[String],
       birthDate: Option[Date],
       nationality: Country.Value,
       heightMin: Int,
@@ -108,7 +110,7 @@ class DirectorRepository @Inject() (
   def list(
       page: Int = 1,
       pageSize: Int = 8,
-      name: String = "%",
+      name: Option[String],
       birthDate: Option[Date],
       nationality: Country.Value,
       heightMin: Int,

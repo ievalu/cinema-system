@@ -27,8 +27,9 @@ class GenreController @Inject() (
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
+    val titleToRepo = if (title.trim.nonEmpty) Some(title) else None
     repo
-      .list(page, pageSize, "%" + title + "%", orderBy, order)
+      .list(page, pageSize, titleToRepo, orderBy, order)
       .map(genres => Ok(html.genre.list(genres, createGenreForm.fill(CreateGenreForm(title)), SortItems(orderBy, order))))
   }
 

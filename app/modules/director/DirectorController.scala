@@ -50,8 +50,9 @@ class DirectorController @Inject() (
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ): Action[AnyContent] = Action.async { implicit request =>
+    val nameToRepo = if (name.trim().nonEmpty) Some(name) else None
     repo
-      .list(page, pageSize, "%" + name + "%", parseDate(birthDate), nationality, heightMin, heightMax, gender, orderBy, order)
+      .list(page, pageSize, nameToRepo, parseDate(birthDate), nationality, heightMin, heightMax, gender, orderBy, order)
       .map(
         directors =>
           Ok(
