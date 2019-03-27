@@ -89,14 +89,14 @@
                         )
                     </td>
                     <td>
-                        <button
+                        <a
                                 style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                type="button"
-                                onclick="location.href='@modules.actor.routes.ActorController.list()'">
+                                href="@modules.actor.routes.ActorController.list()">
                             <i class="undo icon"></i>
-                        </button>
+                        </a>
                     </td>
                 </tr>
+                }
                 @Option(actors.items).filter(_.nonEmpty).map { actors =>
                     @actors.map { actor =>
                         <tr>
@@ -109,19 +109,22 @@
                             <td>@actor.height</td>
                             <td>@actor.gender.actualName</td>
                             <td style="width: 70px">
-                                <button
+                                <a
                                         style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="location.href='@modules.actor.routes.ActorController.edit(actor.id)'">
+                                        href="@modules.actor.routes.ActorController.edit(actor.id)">
                                     <i class="edit outline icon"></i>
-                                </button>
-                                <button
-                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="deleteRow('@modules.actor.routes.ActorController.delete(actor.id)', '/actors')"
-                                >
-                                    <i class="trash alternate outline icon"></i>
-                                </button>
+                                </a>
+                                @form(
+                                modules.actor.routes.ActorController.delete(actor.id),
+                                'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <button
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            type="submit"
+                                    >
+                                        <i class="trash alternate outline icon"></i>
+                                    </button>
+                                }
                             </td>
                         </tr>
                     }
@@ -132,7 +135,6 @@
                 }
             </tbody>
         </table>
-    }
 
     <div class="ui pagination menu" style="margin-top: 10px">
         @actors.prev.map { page =>
@@ -157,6 +159,4 @@
             </a>
         }
     </div>
-
-    <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

@@ -82,14 +82,14 @@
                         )
                     </td>
                     <td>
-                        <button
+                        <a
                                 style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                type="button"
-                                onclick="location.href='@modules.movie.routes.MovieController.list()'">
+                                href="@modules.movie.routes.MovieController.list()">
                             <i class="undo icon"></i>
-                        </button>
+                        </a>
                     </td>
                 </tr>
+                }
                 @Option(movies.items).filter(_.nonEmpty).map { movies =>
                     @movies.map { movie =>
                         <tr>
@@ -99,19 +99,22 @@
                             <td>@movie.country.countryName</td>
                             <td>@movie.language.actualName</td>
                             <td style="width: 70px">
-                                <button
+                                <a
                                         style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="location.href='@modules.movie.routes.MovieController.edit(movie.id)'">
+                                        href="@modules.movie.routes.MovieController.edit(movie.id)">
                                     <i class="edit outline icon"></i>
-                                </button>
-                                <button
-                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="deleteRow('@modules.movie.routes.MovieController.delete(movie.id)', '/movies')"
-                                >
-                                    <i class="trash alternate outline icon"></i>
-                                </button>
+                                </a>
+                                @form(
+                                    modules.movie.routes.MovieController.delete(movie.id),
+                                    'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <button
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            type="submit"
+                                    >
+                                        <i class="trash alternate outline icon"></i>
+                                    </button>
+                                }
                             </td>
                         </tr>
                 }
@@ -122,7 +125,6 @@
                 }
             </tbody>
         </table>
-    }
 
     <div class="ui pagination menu" style="margin-top: 10px">
         @movies.prev.map { page =>
@@ -147,6 +149,4 @@
             </a>
         }
     </div>
-
-    <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

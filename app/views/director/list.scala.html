@@ -89,14 +89,14 @@
                         )
                     </td>
                     <td>
-                        <button
-                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                type="button"
-                                onclick="location.href='@modules.director.routes.DirectorController.list()'">
+                        <a  style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                            href="@modules.director.routes.DirectorController.list()"
+                        >
                             <i class="undo icon"></i>
-                        </button>
+                        <a/>
                     </td>
                 </tr>
+                }
                 @Option(directors.items).filter(_.nonEmpty).map { directors =>
                     @directors.map { director =>
                         <tr>
@@ -109,19 +109,22 @@
                             <td>@director.height</td>
                             <td>@director.gender.actualName</td>
                             <td style="width: 70px">
-                                <button
-                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="location.href='@modules.director.routes.DirectorController.edit(director.id)'">
+                                <a
+                                    style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                    href="@modules.director.routes.DirectorController.edit(director.id)">
                                     <i class="edit outline icon"></i>
-                                </button>
-                                <button
+                                </a>
+                                @form(
+                                    modules.director.routes.DirectorController.delete(director.id),
+                                    'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <button
                                         style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="deleteRow('@modules.director.routes.DirectorController.delete(director.id)', '/directors')"
-                                >
-                                    <i class="trash alternate outline icon"></i>
-                                </button>
+                                        type="submit"
+                                    >
+                                        <i class="trash alternate outline icon"></i>
+                                    </button>
+                                }
                             </td>
                         </tr>
                     }
@@ -132,7 +135,6 @@
                 }
             </tbody>
         </table>
-    }
 
     <div class="ui pagination menu" style="margin-top: 10px">
         @directors.prev.map { page =>
@@ -157,6 +159,4 @@
             </a>
         }
     </div>
-
-    <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }

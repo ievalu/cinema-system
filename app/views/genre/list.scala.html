@@ -45,32 +45,35 @@
                         )
                     </td>
                     <td>
-                        <button
+                        <a
                                 style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                type="button"
-                                onclick="location.href='@modules.genre.routes.GenreController.list()'">
+                                href="@modules.genre.routes.GenreController.list()">
                             <i class="undo icon"></i>
-                        </button>
+                        </a>
                     </td>
                 </tr>
+                }
                 @Option(genres.items).filter(_.nonEmpty).map { genres =>
                     @genres.map { genre =>
                         <tr>
                             <td>@genre.title.toLowerCase.capitalize</td>
                             <td style="width: 70px">
-                                <button
+                                <a
                                         style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="location.href='@modules.genre.routes.GenreController.edit(genre.id)'">
+                                        href="@modules.genre.routes.GenreController.edit(genre.id)">
                                     <i class="edit outline icon"></i>
-                                </button>
-                                <button
-                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
-                                        type="button"
-                                        onclick="deleteRow('@modules.genre.routes.GenreController.delete(genre.id)', '/genres')"
-                                >
-                                    <i class="trash alternate outline icon"></i>
-                                </button>
+                                </a>
+                                @form(
+                                    modules.genre.routes.GenreController.delete(genre.id),
+                                    'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <button
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            type="submit"
+                                    >
+                                        <i class="trash alternate outline icon"></i>
+                                    </button>
+                                }
                             </td>
                         </tr>
                     }
@@ -81,7 +84,6 @@
                 }
             </tbody>
         </table>
-    }
 
     <div class="ui pagination menu" style="margin-top: 10px">
         @genres.prev.map { page =>
@@ -106,6 +108,4 @@
             </a>
         }
     </div>
-
-    <script src="@routes.Assets.versioned("javascripts/update-delete.js")"></script>
 }
