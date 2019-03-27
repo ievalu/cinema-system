@@ -55,41 +55,33 @@ class MovieRepository @Inject()(
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ) = {
+    val titleSort = movieTable.title.toLowerCase
+    val descriptionSort = movieTable.description.toLowerCase
+    val dateSort = movieTable.releaseDate
+    val countrySort = {
+      Country.values.drop(1)
+        .foldLeft {
+          Case
+            .If(movieTable.country === Country.values.head)
+            .Then(Some(Country.values.head.countryName): Rep[Option[String]])
+        } {
+          case(acc, enum) =>
+            acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
+        }
+        .Else(Option.empty[String]: Rep[Option[String]])
+    }
+    val languageSort = movieTable.language
     (orderBy, order) match {
-      case (SortableField.title, SortOrder.asc) => movieTable.title.toLowerCase.asc
-      case (SortableField.title, SortOrder.desc) => movieTable.title.toLowerCase.desc
-      case (SortableField.description, SortOrder.asc) => movieTable.description.toLowerCase.asc
-      case (SortableField.description, SortOrder.desc) => movieTable.description.toLowerCase.desc
-      case (SortableField.releaseDate, SortOrder.asc) => movieTable.releaseDate.asc
-      case (SortableField.releaseDate, SortOrder.desc) => movieTable.releaseDate.desc
-      case (SortableField.country, SortOrder.asc) => {
-        Country.values.drop(1)
-          .foldLeft {
-            Case
-              .If(movieTable.country === Country.values.head)
-              .Then(Some(Country.values.head.countryName): Rep[Option[String]])
-          } {
-            case(acc, enum) =>
-              acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
-          }
-          .Else(Option.empty[String]: Rep[Option[String]])
-          .asc
-      }
-      case (SortableField.country, SortOrder.desc) => {
-        Country.values.drop(1)
-          .foldLeft {
-            Case
-              .If(movieTable.country === Country.values.head)
-              .Then(Some(Country.values.head.countryName): Rep[Option[String]])
-          } {
-            case(acc, enum) =>
-              acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
-          }
-          .Else(Option.empty[String]: Rep[Option[String]])
-          .desc
-      }
-      case (SortableField.language, SortOrder.asc) => movieTable.language.asc
-      case (SortableField.language, SortOrder.desc) => movieTable.language.desc
+      case (SortableField.title, SortOrder.asc) => titleSort.asc
+      case (SortableField.title, SortOrder.desc) => titleSort.desc
+      case (SortableField.description, SortOrder.asc) => descriptionSort.asc
+      case (SortableField.description, SortOrder.desc) => descriptionSort.desc
+      case (SortableField.releaseDate, SortOrder.asc) => dateSort.asc
+      case (SortableField.releaseDate, SortOrder.desc) => dateSort.desc
+      case (SortableField.country, SortOrder.asc) => countrySort.asc
+      case (SortableField.country, SortOrder.desc) => countrySort.desc
+      case (SortableField.language, SortOrder.asc) => languageSort.asc
+      case (SortableField.language, SortOrder.desc) => languageSort.desc
       case _ => movieTable.id.asc
     }
   }

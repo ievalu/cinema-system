@@ -30,9 +30,10 @@ class GenreRepository @Inject() (
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ) = {
+    val titleSort = genreTable.title.toLowerCase
     (orderBy, order) match {
-      case (SortableField.title, SortOrder.asc) => genreTable.title.toLowerCase.asc
-      case (SortableField.title, SortOrder.desc) => genreTable.title.toLowerCase.desc
+      case (SortableField.title, SortOrder.asc) => titleSort.asc
+      case (SortableField.title, SortOrder.desc) => titleSort.desc
       case _ => genreTable.id.asc
     }
   }

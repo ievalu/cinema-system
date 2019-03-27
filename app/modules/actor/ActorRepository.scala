@@ -64,39 +64,30 @@ class ActorRepository @Inject() (
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ) = {
-    (orderBy, order) match {
-      case (SortableField.name, SortOrder.asc) => actorTable.firstName.toLowerCase.asc
-      case (SortableField.name, SortOrder.desc) => actorTable.firstName.toLowerCase.desc
-      case (SortableField.birthDate, SortOrder.asc) => actorTable.birthDate.asc
-      case (SortableField.birthDate, SortOrder.desc) => actorTable.birthDate.desc
-      case (SortableField.nationality, SortOrder.asc) => {
-        Country.values.drop(1)
-          .foldLeft {
-            Case
-              .If(actorTable.nationality === Country.values.head)
-              .Then(Some(Country.values.head.nationality): Rep[Option[String]])
-          } {
-            case(acc, enum) =>
-              acc.If(actorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
-          }
-              .Else(Option.empty[String]: Rep[Option[String]])
-              .asc
+    val nameSort = actorTable.firstName.toLowerCase
+    val dateSort = actorTable.birthDate
+    val nationalitySort = {
+      Country.values.drop(1)
+        .foldLeft {
+          Case
+            .If(actorTable.nationality === Country.values.head)
+            .Then(Some(Country.values.head.nationality): Rep[Option[String]])
+        } {
+          case(acc, enum) =>
+            acc.If(actorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
         }
-      case (SortableField.nationality, SortOrder.desc) => {
-        Country.values.drop(1)
-          .foldLeft {
-            Case
-              .If(actorTable.nationality === Country.values.head)
-              .Then(Some(Country.values.head.nationality): Rep[Option[String]])
-          } {
-            case(acc, enum) =>
-              acc.If(actorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
-          }
-          .Else(Option.empty[String]: Rep[Option[String]])
-          .desc
-      }
-      case (SortableField.height, SortOrder.asc) => actorTable.height.asc
-      case (SortableField.height, SortOrder.desc) => actorTable.height.desc
+        .Else(Option.empty[String]: Rep[Option[String]])
+    }
+    val heightSort = actorTable.height
+    (orderBy, order) match {
+      case (SortableField.name, SortOrder.asc) => nameSort.asc
+      case (SortableField.name, SortOrder.desc) => nameSort.desc
+      case (SortableField.birthDate, SortOrder.asc) => dateSort.asc
+      case (SortableField.birthDate, SortOrder.desc) => dateSort.desc
+      case (SortableField.nationality, SortOrder.asc) => nationalitySort.asc
+      case (SortableField.nationality, SortOrder.desc) => nationalitySort.desc
+      case (SortableField.height, SortOrder.asc) => heightSort.asc
+      case (SortableField.height, SortOrder.desc) => heightSort.desc
       case _ => actorTable.id.asc
     }
   }

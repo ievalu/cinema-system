@@ -61,39 +61,30 @@ class DirectorRepository @Inject() (
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ) = {
+    val nameSort = directorTable.firstName.toLowerCase
+    val dateSort = directorTable.birthDate
+    val nationalitySort = {
+      Country.values.drop(1)
+        .foldLeft {
+          Case
+            .If(directorTable.nationality === Country.values.head)
+            .Then(Some(Country.values.head.nationality): Rep[Option[String]])
+        } {
+          case(acc, enum) =>
+            acc.If(directorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
+        }
+        .Else(Option.empty[String]: Rep[Option[String]])
+    }
+    val heightSort = directorTable.height
     (orderBy, order) match {
-      case (SortableField.name, SortOrder.asc) => directorTable.firstName.toLowerCase.asc
-      case (SortableField.name, SortOrder.desc) => directorTable.firstName.toLowerCase.desc
-      case (SortableField.birthDate, SortOrder.asc) => directorTable.birthDate.asc
-      case (SortableField.birthDate, SortOrder.desc) => directorTable.birthDate.desc
-      case (SortableField.nationality, SortOrder.asc) => {
-        Country.values.drop(1)
-          .foldLeft {
-            Case
-              .If(directorTable.nationality === Country.values.head)
-              .Then(Some(Country.values.head.nationality): Rep[Option[String]])
-          } {
-            case(acc, enum) =>
-              acc.If(directorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
-          }
-          .Else(Option.empty[String]: Rep[Option[String]])
-          .asc
-      }
-      case (SortableField.nationality, SortOrder.desc) => {
-        Country.values.drop(1)
-          .foldLeft {
-            Case
-              .If(directorTable.nationality === Country.values.head)
-              .Then(Some(Country.values.head.nationality): Rep[Option[String]])
-          } {
-            case(acc, enum) =>
-              acc.If(directorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
-          }
-          .Else(Option.empty[String]: Rep[Option[String]])
-          .desc
-      }
-      case (SortableField.height, SortOrder.asc) => directorTable.height.asc
-      case (SortableField.height, SortOrder.desc) => directorTable.height.desc
+      case (SortableField.name, SortOrder.asc) => nameSort.asc
+      case (SortableField.name, SortOrder.desc) => nameSort.desc
+      case (SortableField.birthDate, SortOrder.asc) => dateSort.asc
+      case (SortableField.birthDate, SortOrder.desc) => dateSort.desc
+      case (SortableField.nationality, SortOrder.asc) => nationalitySort.asc
+      case (SortableField.nationality, SortOrder.desc) => nationalitySort.desc
+      case (SortableField.height, SortOrder.asc) => heightSort.asc
+      case (SortableField.height, SortOrder.desc) => heightSort.desc
       case _ => directorTable.id.asc
     }
   }
