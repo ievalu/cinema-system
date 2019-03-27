@@ -124,9 +124,23 @@ class MovieRepository @Inject()(
   }
 
   def create(newMovie: CreateMovieForm): Future[Movie] = db.run {
-    (movies.map(m => (m.title, m.description, m.releaseDate, m.country, m.language)) returning movies.map(_.id)
-      into ((movieForm, id) => Movie(id, movieForm._1, movieForm._2, movieForm._3, movieForm._4, movieForm._5))) +=
-      (newMovie.title, newMovie.description, newMovie.releaseDate, newMovie.country, newMovie.language)
+    (movies
+      .map(m =>
+        (
+          m.title,
+          m.description,
+          m.releaseDate,
+          m.country,
+          m.language
+        )) returning movies
+      into ((_, movie) =>
+      movie)) +=
+      (
+        newMovie.title,
+        newMovie.description,
+        newMovie.releaseDate,
+        newMovie.country,
+        newMovie.language)
   }
 
   def update(id: Long, newMovie: CreateMovieForm): Future[Movie] = {

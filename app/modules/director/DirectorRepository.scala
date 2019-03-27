@@ -136,17 +136,9 @@ class DirectorRepository @Inject() (
       d.nationality,
       d.height,
       d.gender
-    )) returning directors.map(_.id)
-      into ((directorForm, id) =>
-        Director(
-          id,
-          directorForm._1,
-          directorForm._2,
-          directorForm._3,
-          directorForm._4,
-          directorForm._5,
-          directorForm._6
-        ))) +=
+    )) returning directors
+      into ((_, director) =>
+        director)) +=
         (
           newDirector.firstName,
           newDirector.lastName,

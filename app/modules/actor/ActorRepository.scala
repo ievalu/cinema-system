@@ -139,17 +139,9 @@ class ActorRepository @Inject() (
       a.nationality,
       a.height,
       a.gender
-    )) returning actors.map(_.id)
-      into ((actorForm, id) =>
-      Actor(
-        id,
-        actorForm._1,
-        actorForm._2,
-        actorForm._3,
-        actorForm._4,
-        actorForm._5,
-        actorForm._6
-      ))) +=
+    )) returning actors
+      into ((_, actor) =>
+        actor)) +=
       (
         newActor.firstName,
         newActor.lastName,
