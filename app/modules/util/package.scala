@@ -35,7 +35,7 @@ package object util {
         .map(Right(_))
         .getOrElse(Left(List(FormError(key, s"Nationality not found by value:'$value'"))))
     }
-    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> value.nationality)
+    def unbind(key: String, value: CountryVal): Map[String, String] = Map(key -> value.dbName)
   }
 
   object Country extends Enumeration {
