@@ -4,9 +4,9 @@
 @import modules.util.{Country, Language}
 @(movieForm: Form[CreateMovieForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
 
-@main("Create movie") {
+@main(id.map(_ => "Update movie").getOrElse("Create movie")) {
     @form(
-        if (id != None) modules.movie.routes.MovieController.update(id.get) else modules.movie.routes.MovieController.saveNewMovie(),
+        id.map(idVal => modules.movie.routes.MovieController.update(idVal)).getOrElse(modules.movie.routes.MovieController.saveNewMovie()),
         'class -> s"ui form ${if(movieForm.hasErrors) "error" else ""}"
     ) {
         @inputText(

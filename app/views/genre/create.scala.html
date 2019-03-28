@@ -3,9 +3,9 @@
 @import modules.genre.{CreateGenreForm}
 @(genreForm: Form[CreateGenreForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
 
-@main("Create movie") {
+@main(id.map(_ => "Update genre").getOrElse("Create genre")) {
     @form(
-    if (id != None) modules.genre.routes.GenreController.update(id.get) else modules.genre.routes.GenreController.saveNewGenre(),
+    id.map(idVal => modules.genre.routes.GenreController.update(idVal)).getOrElse(modules.genre.routes.GenreController.saveNewGenre()),
     'class -> s"ui form ${if(genreForm.hasErrors) "error" else ""}"
     ) {
         @inputText(

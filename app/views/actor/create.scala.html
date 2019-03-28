@@ -4,10 +4,10 @@
 @import modules.util.{Country, Gender}
 @(actorForm: Form[CreateActorForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
 
-@main("Add actor") {
+@main(id.map(_ => "Update actor").getOrElse("Add actor")) {
 
     @form(
-        if (id != None) modules.actor.routes.ActorController.update(id.get) else modules.actor.routes.ActorController.saveNewActor(),
+        id.map(idVal => modules.actor.routes.ActorController.update(idVal)).getOrElse(modules.actor.routes.ActorController.saveNewActor()),
         'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}"
         ) {
             @inputText(

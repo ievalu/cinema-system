@@ -4,9 +4,9 @@
 @import modules.util.{Country, Gender}
 @(directorForm: Form[CreateDirectorForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
 
-@main("Add director") {
+@main(id.map(_ => "Update director").getOrElse("Add director")) {
 @form(
-    if (id != None) modules.director.routes.DirectorController.update(id.get) else modules.director.routes.DirectorController.saveNewDirector(),
+    id.map(idVal => modules.director.routes.DirectorController.update(idVal)).getOrElse(modules.director.routes.DirectorController.saveNewDirector()),
     'class -> s"ui form ${if(directorForm.hasErrors) "error" else ""}"
     ) {
         @inputText(
