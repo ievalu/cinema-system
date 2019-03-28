@@ -5,6 +5,7 @@ import modules.util.{Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import slick.lifted.ColumnOrdered
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,22 +19,21 @@ class GenreRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def filterLogic(title: Option[String]) = {
+  private def filterLogic(title: Option[String]) = {
     title.map {
       titleVal =>
         genres.filter(genre => genre.title ilike "%" + titleVal + "%")
     }.getOrElse(genres)
   }
 
-  def sortLogic(
+  private def sortLogic(
       genreTable: GenreTable,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ) = {
-    val titleSort = genreTable.title.toLowerCase
-    (orderBy, order) match {
-      case (SortableField.title, SortOrder.asc) => titleSort.asc
-      case (SortableField.title, SortOrder.desc) => titleSort.desc
+    val ordering = if (order == SortOrder.desc) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
+    orderBy match {
+      case SortableField.title => ColumnOrdered(genreTable.title.toLowerCase, slick.ast.Ordering(ordering))
       case _ => genreTable.id.asc
     }
   }

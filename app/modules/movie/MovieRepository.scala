@@ -7,6 +7,7 @@ import modules.util.{Country, Language, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import slick.lifted.ColumnOrdered
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,7 +21,7 @@ class MovieRepository @Inject()(
 
   private val logger = Logger(this.getClass)
 
-  def filterLogic(
+  private def filterLogic(
       title: Option[String],
       description: Option[String],
       releaseDate: Option[Date],
@@ -50,38 +51,29 @@ class MovieRepository @Inject()(
     languageFilteredQuery
   }
 
-  def sortLogic(
+  private def sortLogic(
       movieTable: MovieTable,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ) = {
-    val titleSort = movieTable.title.toLowerCase
-    val descriptionSort = movieTable.description.toLowerCase
-    val dateSort = movieTable.releaseDate
-    val countrySort = {
-      Country.values.drop(1)
-        .foldLeft {
-          Case
-            .If(movieTable.country === Country.values.head)
-            .Then(Some(Country.values.head.countryName): Rep[Option[String]])
-        } {
-          case(acc, enum) =>
-            acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
-        }
-        .Else(Option.empty[String]: Rep[Option[String]])
-    }
-    val languageSort = movieTable.language
-    (orderBy, order) match {
-      case (SortableField.title, SortOrder.asc) => titleSort.asc
-      case (SortableField.title, SortOrder.desc) => titleSort.desc
-      case (SortableField.description, SortOrder.asc) => descriptionSort.asc
-      case (SortableField.description, SortOrder.desc) => descriptionSort.desc
-      case (SortableField.releaseDate, SortOrder.asc) => dateSort.asc
-      case (SortableField.releaseDate, SortOrder.desc) => dateSort.desc
-      case (SortableField.country, SortOrder.asc) => countrySort.asc
-      case (SortableField.country, SortOrder.desc) => countrySort.desc
-      case (SortableField.language, SortOrder.asc) => languageSort.asc
-      case (SortableField.language, SortOrder.desc) => languageSort.desc
+    val ordering = if (order == SortOrder.desc) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
+    orderBy match {
+      case SortableField.title => ColumnOrdered(movieTable.title.toLowerCase, slick.ast.Ordering(ordering))
+      case SortableField.description => ColumnOrdered(movieTable.description.toLowerCase, slick.ast.Ordering(ordering))
+      case SortableField.releaseDate => ColumnOrdered(movieTable.releaseDate, slick.ast.Ordering(ordering))
+      case SortableField.country => ColumnOrdered({
+        Country.values.drop(1)
+          .foldLeft {
+            Case
+              .If(movieTable.country === Country.values.head)
+              .Then(Some(Country.values.head.countryName): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(movieTable.country === enum).Then(Some(enum.countryName): Rep[Option[String]])
+          }
+          .Else(Option.empty[String]: Rep[Option[String]])
+      }, slick.ast.Ordering(ordering))
+      case SortableField.language => ColumnOrdered(movieTable.language, slick.ast.Ordering(ordering))
       case _ => movieTable.id.asc
     }
   }

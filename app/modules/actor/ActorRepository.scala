@@ -7,6 +7,7 @@ import modules.util.{Country, Gender, Page, SortOrder}
 import modules.utility.database.ExtendedPostgresProfile
 import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import slick.lifted.ColumnOrdered
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -21,7 +22,7 @@ class ActorRepository @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  def filterLogic(
+  private def filterLogic(
       name: Option[String],
       birthDate: Option[Date],
       nationality: Country.Value,
@@ -59,35 +60,28 @@ class ActorRepository @Inject() (
     genderFilteredQuery
   }
 
-  def sortLogic(
-      actorTable: ActorTable, //Query[ActorRepository.this.ActorTable, ActorRepository.this.ActorTable#TableElementType, Seq],
+  private def sortLogic(
+      actorTable: ActorTable,
       orderBy: SortableField.Value,
       order: SortOrder.Value
   ) = {
-    val nameSort = actorTable.firstName.toLowerCase
-    val dateSort = actorTable.birthDate
-    val nationalitySort = {
-      Country.values.drop(1)
-        .foldLeft {
-          Case
-            .If(actorTable.nationality === Country.values.head)
-            .Then(Some(Country.values.head.nationality): Rep[Option[String]])
-        } {
-          case(acc, enum) =>
-            acc.If(actorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
-        }
-        .Else(Option.empty[String]: Rep[Option[String]])
-    }
-    val heightSort = actorTable.height
-    (orderBy, order) match {
-      case (SortableField.name, SortOrder.asc) => nameSort.asc
-      case (SortableField.name, SortOrder.desc) => nameSort.desc
-      case (SortableField.birthDate, SortOrder.asc) => dateSort.asc
-      case (SortableField.birthDate, SortOrder.desc) => dateSort.desc
-      case (SortableField.nationality, SortOrder.asc) => nationalitySort.asc
-      case (SortableField.nationality, SortOrder.desc) => nationalitySort.desc
-      case (SortableField.height, SortOrder.asc) => heightSort.asc
-      case (SortableField.height, SortOrder.desc) => heightSort.desc
+    val ordering = if (order == SortOrder.desc) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
+    orderBy match {
+      case SortableField.name => ColumnOrdered(actorTable.firstName.toLowerCase, slick.ast.Ordering(ordering))
+      case SortableField.birthDate => ColumnOrdered(actorTable.birthDate, slick.ast.Ordering(ordering))
+      case SortableField.nationality => ColumnOrdered({
+        Country.values.drop(1)
+          .foldLeft {
+            Case
+              .If(actorTable.nationality === Country.values.head)
+              .Then(Some(Country.values.head.nationality): Rep[Option[String]])
+          } {
+            case(acc, enum) =>
+              acc.If(actorTable.nationality === enum).Then(Some(enum.nationality): Rep[Option[String]])
+          }
+          .Else(Option.empty[String]: Rep[Option[String]])
+      }, slick.ast.Ordering(ordering))
+      case SortableField.height => ColumnOrdered(actorTable.height, slick.ast.Ordering(ordering))
       case _ => actorTable.id.asc
     }
   }
