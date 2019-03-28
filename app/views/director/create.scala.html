@@ -1,0 +1,47 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.director.{CreateDirectorForm}
+@import modules.util.{Country, Gender}
+@(directorForm: Form[CreateDirectorForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main(id.map(_ => "Update director").getOrElse("Add director")) {
+@form(
+    id.map(idVal => modules.director.routes.DirectorController.update(idVal)).getOrElse(modules.director.routes.DirectorController.saveNewDirector()),
+    'class -> s"ui form ${if(directorForm.hasErrors) "error" else ""}"
+    ) {
+        @inputText(
+            directorForm("firstName"),
+            '_label -> "First name"
+        )
+        @inputText(
+            directorForm("lastName"),
+            '_label -> "Last name"
+        )
+        @inputText(
+            directorForm("birthDate"), 'type -> "date",
+            '_label -> "Birth date"
+        )
+        @select(
+            directorForm("nationality"),
+            Country.values.map(nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)).toSeq,
+            '_label -> "Nationality"
+        )
+        @inputText(
+            directorForm("height"),
+            '_label -> "Height",
+            'type -> "number"
+        )
+        @select(
+            directorForm("gender"),
+            Gender.values.map(genderVal => (genderVal.dbName, genderVal.actualName)).toSeq,
+            '_label -> "Gender"
+        )
+
+        @if(id != None) {
+            <button id="edit-submit" class="ui primary button" type="submit">Update director</button>
+        } else {
+            <button id="create-submit" class="ui primary button" type="submit">Add director</button>
+        }
+        <a class="ui button" href="@modules.director.routes.DirectorController.list()">Cancel</a>
+    }
+}

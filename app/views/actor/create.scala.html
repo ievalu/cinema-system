@@ -1,0 +1,48 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.actor.{CreateActorForm}
+@import modules.util.{Country, Gender}
+@(actorForm: Form[CreateActorForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main(id.map(_ => "Update actor").getOrElse("Add actor")) {
+
+    @form(
+        id.map(idVal => modules.actor.routes.ActorController.update(idVal)).getOrElse(modules.actor.routes.ActorController.saveNewActor()),
+        'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}"
+        ) {
+            @inputText(
+                actorForm("firstName"),
+                '_label -> "First name"
+            )
+            @inputText(
+                actorForm("lastName"),
+                '_label -> "Last name"
+            )
+            @inputText(
+                actorForm("birthDate"), 'type -> "date",
+                '_label -> "Birth date"
+            )
+            @select(
+                actorForm("nationality"),
+                Country.values.map(nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)).toSeq,
+                '_label -> "Nationality"
+            )
+            @inputText(
+                actorForm("height"),
+                '_label -> "Height",
+                'type -> "number"
+            )
+            @select(
+                actorForm("gender"),
+                Gender.values.map(genderVal => (genderVal.dbName, genderVal.actualName)).toSeq,
+                '_label -> "Gender"
+            )
+
+            @if(id != None) {
+                <button id="edit-submit" class="ui primary button" type="submit">Update actor</button>
+            } else {
+                <button id="create-submit" class="ui primary button" type="submit">Add actor</button>
+            }
+            <a class="ui button" href="@modules.actor.routes.ActorController.list()">Cancel</a>
+        }
+}

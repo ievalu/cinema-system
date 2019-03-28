@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String)(content: Html)(implicit flash: Flash)
 
 <!DOCTYPE html>
 
@@ -14,10 +14,23 @@
     <body>
 	    <div class="ui container">
 	    <div class="ui menu">
-		    <a class="item" href="@modules.person.routes.PersonController.index()">Index</a>
-		    <a class="item" href="@modules.person.routes.PersonController.list()">Persons</a>
+            <a class="item" href="@modules.movie.routes.MovieController.index()">Index</a>
+            <a class="item" href="@modules.movie.routes.MovieController.list()">Movies</a>
+            <a class="item" href="@modules.director.routes.DirectorController.list()">Directors</a>
+            <a class="item" href="@modules.actor.routes.ActorController.list()">Actors</a>
+            <a class="item" href="@modules.genre.routes.GenreController.list()">Genres</a>
 	    </div>
 		    <div class="ui segment">
+                @flash.get("success").map { message =>
+                    <div class="ui success message">
+                        <strong>Done!</strong> @message
+                    </div>
+                }
+                @flash.get("error").map { message =>
+                    <div class="ui negative message">
+                        <strong>Error!</strong> @message
+                    </div>
+                }
 		        @content
 		    </div>
 	    </div>

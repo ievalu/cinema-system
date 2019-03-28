@@ -1,9 +1,11 @@
 package modules.utility.database
 
 import com.github.tminglei.slickpg._
+import com.github.tminglei.slickpg.str.PgStringSupport
 import slick.basic.Capability
 
 trait ExtendedPostgresProfile extends ExPostgresProfile
+  with PgStringSupport
   with PgArraySupport
   with PgDate2Support
   with PgRangeSupport
@@ -21,6 +23,7 @@ trait ExtendedPostgresProfile extends ExPostgresProfile
     super.computeCapabilities + slick.jdbc.JdbcCapabilities.insertOrUpdate
 
   override val api = new API with ArrayImplicits
+    with PgStringImplicits
     with DateTimeImplicits
     with PlayJsonImplicits
     with NetImplicits

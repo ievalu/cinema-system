@@ -1,0 +1,42 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.movie.{CreateMovieForm}
+@import modules.util.{Country, Language}
+@(movieForm: Form[CreateMovieForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main(id.map(_ => "Update movie").getOrElse("Create movie")) {
+    @form(
+        id.map(idVal => modules.movie.routes.MovieController.update(idVal)).getOrElse(modules.movie.routes.MovieController.saveNewMovie()),
+        'class -> s"ui form ${if(movieForm.hasErrors) "error" else ""}"
+    ) {
+        @inputText(
+            movieForm("title"),
+            '_label -> "Title"
+        )
+        @inputText(
+            movieForm("description"),
+            '_label -> "Description"
+        )
+        @inputText(
+            movieForm("releaseDate"), 'type -> "date",
+            '_label -> "Release date"
+        )
+        @select(
+            movieForm("country"),
+            Country.values.map(countryVal => (countryVal.dbName, countryVal.countryName)).toSeq,
+            '_label -> "Country"
+        )
+        @select(
+            movieForm("language"),
+            Language.values.map(languageVal => (languageVal.dbName, languageVal.actualName)).toSeq,
+            '_label -> "Language"
+        )
+
+        @if(id != None) {
+            <button id="edit-submit" class="ui primary button" type="submit">Update Movie</button>
+        } else {
+            <button id="create-submit" class="ui primary button" type="submit">Add Movie</button>
+        }
+        <a class="ui button" href="@modules.movie.routes.MovieController.list()">Cancel</a>
+    }
+}

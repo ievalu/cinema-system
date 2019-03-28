@@ -1,0 +1,152 @@
+@import modules.movie.{Movie, SortableField, SortItems}
+@import modules.util.{Page, SortOrder}
+@import modules.util.{Country, Language}
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.movie.{FilterMovieForm}
+@(movies: Page[Movie], filterForm: Form[FilterMovieForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
+
+@paginate(page: Int) = @{
+    modules.movie.routes.MovieController.list(page)
+}
+
+@linkToList(newOrderBy: SortableField.Value) = @{
+    modules.movie.routes.MovieController.list(
+        1,
+        8,
+        filterForm("title").value.get,
+        filterForm("description").value.get,
+        filterForm("releaseDate").value.getOrElse(""),
+        Country.findByString(filterForm("country").value.get).get,
+        Language.findByString(filterForm("language").value.get).get,
+        newOrderBy,
+        if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+    )
+}
+
+@main("Movies") {
+
+    @form(
+        modules.movie.routes.MovieController.list(),
+        'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+    ) {
+
+    <a class="ui button" href="@modules.movie.routes.MovieController.createMovie()">Add new movie</a>
+    <button id="submit" class="ui primary button" type="submit">Filter</button>
+
+        <table class="ui celled table" style="table-layout: fixed">
+            <thead>
+                <tr>
+                    <th><a class="header" href="@linkToList(SortableField.title)">Title</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.description)">Description</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.releaseDate)">Release date</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.country)">Country</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.language)">Language</a></th>
+                    <th style="width: 70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @inputText(
+                            filterForm("title"),
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @inputText(
+                            filterForm("description"),
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @inputText(
+                            filterForm("releaseDate"), 'type -> "date",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @select(
+                            filterForm("country"),
+                            Country.values.toSeq.sortBy(_.countryName).map{countryVal => (countryVal.dbName, countryVal.countryName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @select(
+                            filterForm("language"),
+                            Language.values.toSeq.sortBy(_.actualName).map{languageVal => (languageVal.dbName, languageVal.actualName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        <a
+                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                href="@modules.movie.routes.MovieController.list()">
+                            <i class="undo icon"></i>
+                        </a>
+                    </td>
+                </tr>
+                }
+                @Option(movies.items).filter(_.nonEmpty).map { movies =>
+                    @movies.map { movie =>
+                        <tr>
+                            <td>@movie.title</td>
+                            <td>@movie.description</td>
+                            <td>@movie.releaseDate</td>
+                            <td>@movie.country.countryName</td>
+                            <td>@movie.language.actualName</td>
+                            <td style="width: 70px">
+                                @form(
+                                    modules.movie.routes.MovieController.delete(movie.id),
+                                    'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <a
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            href="@modules.movie.routes.MovieController.edit(movie.id)">
+                                        <i class="edit outline icon"></i>
+                                    </a>
+                                    <button
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            type="submit"
+                                    >
+                                        <i class="trash alternate outline icon red"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                }
+                }.getOrElse {
+                    <tr>
+                        <td colspan="2">No movies found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    <div class="ui pagination menu" style="margin-top: 10px">
+        @movies.prev.map { page =>
+            <a class="item" href="@paginate(page)">
+                &larr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &larr;
+            </a>
+        }
+        <a class="active item" style="cursor: default">
+            Displaying @(movies.offset + 1) to @(movies.offset + movies.items.size) of @movies.total
+        </a>
+        @movies.next.map { page =>
+            <a class="item" href="@paginate(page)">
+                &rarr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &rarr;
+            </a>
+        }
+    </div>
+}

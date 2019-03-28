@@ -1,0 +1,162 @@
+@import modules.director.{Director, SortItems, SortableField}
+@import modules.util._
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.director.{FilterDirectorForm}
+@(directors: Page[Director], filterForm: Form[FilterDirectorForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
+
+@paginate(page: Int) = @{
+    modules.director.routes.DirectorController.list(page)
+}
+
+@linkToList(newOrderBy: SortableField.Value) = @{
+    modules.director.routes.DirectorController.list(
+        1,
+        8,
+        filterForm("name").value.get,
+        filterForm("birthDate").value.getOrElse(""),
+        Country.findByString(filterForm("nationality").value.get).get,
+        filterForm("heightMin").value.get.toInt,
+        filterForm("heightMax").value.get.toInt,
+        Gender.findByString(filterForm("gender").value.get).get,
+        newOrderBy,
+        if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+    )
+}
+
+@main("Directors") {
+
+    @form(
+        modules.director.routes.DirectorController.list(),
+        'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+    ) {
+
+        <a class="ui button" href="@modules.director.routes.DirectorController.createDirector()">Add new director</a>
+        <button id="submit" class="ui primary button" type="submit">Filter</button>
+
+        <table class="ui celled table" style="table-layout: fixed">
+            <thead>
+                <tr>
+                    <th><a class="header" href="@linkToList(SortableField.name)">Name</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.birthDate)">Birth date</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.nationality)">Nationality</a></th>
+                    <th><a class="header" href="@linkToList(SortableField.height)">Height</a></th>
+                    <th>Gender</th>
+                    <th style="width: 70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @inputText(
+                            filterForm("name"),
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @inputText(
+                            filterForm("birthDate"),
+                            'type -> "date",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @select(
+                            filterForm("nationality"),
+                            Country.values.toSeq.sortBy(_.nationality).map{nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @inputText(
+                            filterForm("heightMin"),
+                            '_label -> "",
+                            'type -> "number"
+                        )
+                        @inputText(
+                            filterForm("heightMax"),
+                            '_label -> "",
+                            'type -> "number"
+                        )
+                    </td>
+                    <td>
+                        @select(
+                            filterForm("gender"),
+                            Gender.values.toSeq.sortBy(_.actualName).map{genderVal => (genderVal.dbName, genderVal.actualName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        <a  style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                            href="@modules.director.routes.DirectorController.list()"
+                        >
+                            <i class="undo icon"></i>
+                        <a/>
+                    </td>
+                </tr>
+                }
+                @Option(directors.items).filter(_.nonEmpty).map { directors =>
+                    @directors.map { director =>
+                        <tr>
+                            <td>
+                                @director.firstName
+                                @director.lastName
+                            </td>
+                            <td>@director.birthDate</td>
+                            <td>@director.nationality.nationality</td>
+                            <td>@director.height</td>
+                            <td>@director.gender.actualName</td>
+                            <td style="width: 70px">
+                                @form(
+                                    modules.director.routes.DirectorController.delete(director.id),
+                                    'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <a
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            href="@modules.director.routes.DirectorController.edit(director.id)">
+                                        <i class="edit outline icon"></i>
+                                    </a>
+                                    <button
+                                        style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                        type="submit"
+                                    >
+                                        <i class="trash alternate outline icon red"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    }.getOrElse {
+                        <tr>
+                            <td colspan="2">No directors found</td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+
+    <div class="ui pagination menu" style="margin-top: 10px">
+        @directors.prev.map { page =>
+            <a class="item" href="@paginate(page)">
+                &larr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &larr;
+            </a>
+        }
+        <a class="active item" style="cursor: default">
+            Displaying @(directors.offset + 1) to @(directors.offset + directors.items.size) of @directors.total
+        </a>
+        @directors.next.map { page =>
+            <a class="item" href="@paginate(page)">
+                &rarr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &rarr;
+            </a>
+        }
+    </div>
+}

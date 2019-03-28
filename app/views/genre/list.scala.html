@@ -1,0 +1,111 @@
+@import modules.genre.{Genre, SortableField, SortItems}
+@import modules.util._
+@import modules.genre.{CreateGenreForm}
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@(genres: Page[Genre], filterForm: Form[CreateGenreForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
+
+@paginate(page: Int) = @{
+    modules.genre.routes.GenreController.list(page)
+}
+
+@linkToList(newOrderBy: SortableField.Value) = @{
+    modules.genre.routes.GenreController.list(
+        1,
+        8,
+        filterForm("title").value.get,
+        newOrderBy,
+        if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+    )
+}
+
+@main("Genres") {
+
+    @form(
+        modules.genre.routes.GenreController.list(),
+        'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+    ) {
+
+        <a class="ui button" href="@modules.genre.routes.GenreController.createGenre()">Add new genre</a>
+        <button id="submit" class="ui primary button" type="submit">Filter</button>
+
+        <table class="ui celled table" style="table-layout: fixed">
+            <thead>
+                <tr>
+                    <th><a class="header" href="@linkToList(SortableField.title)">Title</a></th>
+                    <th style="width: 70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @inputText(
+                            filterForm("title"),
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        <a
+                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                href="@modules.genre.routes.GenreController.list()">
+                            <i class="undo icon"></i>
+                        </a>
+                    </td>
+                </tr>
+                }
+                @Option(genres.items).filter(_.nonEmpty).map { genres =>
+                    @genres.map { genre =>
+                        <tr>
+                            <td>@genre.title.toLowerCase.capitalize</td>
+                            <td style="width: 70px">
+                                @form(
+                                    modules.genre.routes.GenreController.delete(genre.id),
+                                    'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <a
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            href="@modules.genre.routes.GenreController.edit(genre.id)">
+                                        <i class="edit outline icon"></i>
+                                    </a>
+                                    <button
+                                            style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                            type="submit"
+                                    >
+                                        <i class="trash alternate outline icon red"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    }.getOrElse {
+                        <tr>
+                            <td colspan="2">No genres found</td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+
+    <div class="ui pagination menu" style="margin-top: 10px">
+        @genres.prev.map { page =>
+            <a class="item" href="@paginate(page)">
+                &larr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &larr;
+            </a>
+        }
+        <a class="active item" style="cursor: default">
+            Displaying @(genres.offset + 1) to @(genres.offset + genres.items.size) of @genres.total
+        </a>
+        @genres.next.map { page =>
+            <a class="item" href="@paginate(page)">
+                &rarr;
+            </a>
+        }.getOrElse {
+            <a class="disabled item">
+                &rarr;
+            </a>
+        }
+    </div>
+}
