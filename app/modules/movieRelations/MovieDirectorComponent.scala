@@ -15,6 +15,6 @@ trait MovieDirectorComponent { self: HasDatabaseConfig[ExtendedPostgresProfile] 
     def * = (id, movieId, directorId) <> ((MovieDirector.apply _).tupled, MovieDirector.unapply)
   }
 
-  val movieGenres = TableQuery[MovieDirectorTable]
+  val movieDirectors = TableQuery[MovieDirectorTable]
 
 }
