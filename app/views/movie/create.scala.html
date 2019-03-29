@@ -2,7 +2,16 @@
 @import modules.utility.twirl.CustomHelpers._
 @import modules.movie.{CreateMovieForm}
 @import modules.util.{Country, Language}
-@(movieForm: Form[CreateMovieForm], id: Option[Long] = None)(implicit request: MessagesRequestHeader, flash: Flash)
+@import modules.director.{Director}
+@import modules.actor.{Actor}
+@import modules.genre.{Genre}
+@(
+    movieForm: Form[CreateMovieForm],
+    directors: Seq[Director],
+    actors: Seq[Actor],
+    genres: Seq[Genre],
+    id: Option[Long] = None
+)(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main(id.map(_ => "Update movie").getOrElse("Create movie")) {
     @form(
@@ -30,6 +39,27 @@
             movieForm("language"),
             Language.values.map(languageVal => (languageVal.dbName, languageVal.actualName)).toSeq,
             '_label -> "Language"
+        )
+
+        @select(
+            movieForm("director"),
+            directors.map(director => (director.id.toString, director.firstName + director.lastName)).toSeq,
+            '_label -> "Directors",
+            'multiple -> true
+        )
+
+        @select(
+            movieForm("actor"),
+            actors.map(actor => (actor.id.toString, actor.firstName + actor.lastName)).toSeq,
+            '_label -> "Actors",
+            'multiple -> true
+        )
+
+        @select(
+            movieForm("genre"),
+            genres.map(genre => (genre.id.toString, genre.title.toLowerCase.capitalize)).toSeq,
+            '_label -> "Genres",
+            'multiple -> true
         )
 
         @if(id != None) {

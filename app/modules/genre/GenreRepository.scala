@@ -40,6 +40,8 @@ class GenreRepository @Inject() (
 
   def count(title: Option[String]): Future[Int] = db.run(filterLogic(title).length.result)
 
+  def listAll: Future[Seq[Genre]] = db.run(genres.result)
+
   def list(
       page: Int = 1,
       pageSize: Int = 8,

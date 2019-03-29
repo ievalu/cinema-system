@@ -1,6 +1,10 @@
 package modules.movie
 
 import javax.inject._
+import modules.actor.ActorRepository
+import modules.director.DirectorRepository
+import modules.genre.GenreRepository
+import modules.movieRelations.{MovieActorRepository, MovieDirectorRepository, MovieGenreRepository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
@@ -11,6 +15,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MovieController @Inject()(
     repo: MovieRepository,
+    directorRepo: DirectorRepository,
+    actorRepo: ActorRepository,
+    genreRepo: GenreRepository,
+    movieDirectorRepo: MovieDirectorRepository,
+    movieActorRepo: MovieActorRepository,
+    movieGenreRepo: MovieGenreRepository,
     cc: MessagesControllerComponents
 )(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
@@ -20,7 +30,10 @@ class MovieController @Inject()(
       "description" -> nonEmptyText,
       "releaseDate" -> sqlDate,
       "country" -> of(CountryFormatter),
-      "language" -> of(LanguageFormatter)
+      "language" -> of(LanguageFormatter),
+      "directors" -> seq(nonEmptyText),
+      "actors" -> seq(nonEmptyText),
+      "genres" -> seq(nonEmptyText)
     )(CreateMovieForm.apply)(CreateMovieForm.unapply)
   }
 
@@ -73,16 +86,36 @@ class MovieController @Inject()(
       )
   }
 
-  def createMovie: Action[AnyContent] = Action {
+  def createMovie: Action[AnyContent] = Action.async {
     implicit request =>
-      Ok(html.movie.create(createMovieForm))
+      for {
+        directors <- directorRepo.listAll
+        actors <- actorRepo.listAll
+        genres <- genreRepo.listAll
+      } yield
+        Ok(html.movie.create(
+          createMovieForm,
+          directors,
+          actors,
+          genres
+        ))
   }
 
   def saveNewMovie: Action[AnyContent] = Action.async {
     implicit request =>
       createMovieForm.bindFromRequest.fold(
         formWithErrors => {
-          Future.successful(Ok(html.movie.create(formWithErrors)))
+          for {
+            directors <- directorRepo.listAll
+            actors <- actorRepo.listAll
+            genres <- genreRepo.listAll
+          } yield
+          Ok(html.movie.create(
+            formWithErrors,
+            directors,
+            actors,
+            genres,
+          ))
         },
         newMovie => {
           repo.create(newMovie).map {
@@ -97,34 +130,84 @@ class MovieController @Inject()(
       repo
         .findById(id)
         .map{
-          case Some(_) => {
+          case Some(_) =>
             val _ = repo.delete(id)
             Redirect(routes.MovieController.list()).flashing("success" -> "Movie deleted")
-          }
           case None => Redirect(routes.MovieController.list()).flashing("error" -> s"No movie with such id = $id")
       }
   }
 
   def edit(id: Long): Action[AnyContent] = Action.async {
     implicit request =>
-      repo
-        .findById(id)
-        .map {
-          case Some(movie) =>
+      val relations = for {
+        movieDirectors <- movieDirectorRepo.findDirectorsByMovieId(id)
+        movieActors <- movieActorRepo.findActorsByMovieId(id)
+        movieGenres <- movieGenreRepo.findGenresByMovieId(id)
+      } yield (
+        movieDirectors,
+        movieActors,
+        movieGenres
+      )
+      val movieTuple = for {
+        movieOp <- repo.findById(id)
+        movieRelations <- relations
+      } yield (movieOp, movieRelations._1, movieRelations._2, movieRelations._3)
+      movieTuple.flatMap {
+        case (Some(movie), movieDirectors, movieActors, movieGenres) =>
+          for {
+            directors <- directorRepo.listAll
+            actors <- actorRepo.listAll
+            genres <- genreRepo.listAll
+          } yield
             Ok(html.movie.create(
               createMovieForm
-                .fill(new CreateMovieForm(movie.title, movie.description, movie.releaseDate, movie.country, movie.language)),
+                .fill(
+                  CreateMovieForm(
+                    movie.title,
+                    movie.description,
+                    movie.releaseDate,
+                    movie.country,
+                    movie.language,
+                    movieDirectors.map(directorId => directorId.toString),
+                    movieActors.map(actorId => actorId.toString),
+                    movieGenres.map(genreId => genreId.toString)
+                  )
+                ),
+              directors,
+              actors,
+              genres,
               Some(id)
-            ))
-          case None => Ok(html.movie.create(createMovieForm))
-        }
+          ))
+        case (None, _, _, _) =>
+          for {
+            directors <- directorRepo.listAll
+            actors <- actorRepo.listAll
+            genres <- genreRepo.listAll
+          } yield
+            Ok(html.movie.create(
+              createMovieForm,
+              directors,
+              actors,
+              genres
+          ))
+      }
   }
 
   def update(id: Long): Action[AnyContent] = Action.async {
     implicit request =>
       createMovieForm.bindFromRequest.fold(
         formWithErrors => {
-          Future.successful(Ok(html.movie.create(formWithErrors)))
+          for {
+            directors <- directorRepo.listAll
+            actors <- actorRepo.listAll
+            genres <- genreRepo.listAll
+          } yield
+          Ok(html.movie.create(
+            formWithErrors,
+            directors,
+            actors,
+            genres
+          ))
         },
         newMovie => {
           repo.update(id, newMovie).map {

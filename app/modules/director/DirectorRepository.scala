@@ -92,6 +92,8 @@ class DirectorRepository @Inject() (
       gender: Gender.Value
   ): Future[Int] = db.run(filterLogic(name, birthDate, nationality, heightMin, heightMax, gender).length.result)
 
+  def listAll: Future[Seq[Director]] = db.run(directors.result)
+
   def list(
       page: Int = 1,
       pageSize: Int = 8,

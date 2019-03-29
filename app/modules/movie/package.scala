@@ -23,7 +23,10 @@ package object movie {
       description: String,
       releaseDate: Date,
       country: Country.Value,
-      language: Language.Value
+      language: Language.Value,
+      directors: Seq[String],
+      actors: Seq[String],
+      genres: Seq[String]
   )
 
   case class FilterMovieForm (
